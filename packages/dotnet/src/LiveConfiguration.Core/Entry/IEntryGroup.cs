@@ -21,5 +21,11 @@ namespace LiveConfiguration.Core
         /// The description of the group
         /// </summary>
         public string Description { get; }
+
+        /// <summary>
+        /// Finds an <see cref="IEntry"/> searching by its key
+        /// </summary>
+        /// <param name="key">The key of the entry to search.</param>
+        IEntry Find(string key);
     }
 }

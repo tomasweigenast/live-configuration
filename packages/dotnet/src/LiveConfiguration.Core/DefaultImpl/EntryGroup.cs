@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace LiveConfiguration.Core.DefaultImpl
 {
@@ -23,6 +24,10 @@ namespace LiveConfiguration.Core.DefaultImpl
 
         ///<inheritdoc/>
         public int Count => mEntries.Length;
+
+        ///<inheritdoc/>
+        public IEntry Find(string key)
+            => mEntries.FirstOrDefault(x => x.Key == key);
 
         ///<inheritdoc/>
         public IEnumerator<IEntry> GetEnumerator()

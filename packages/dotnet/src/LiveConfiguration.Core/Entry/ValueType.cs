@@ -38,6 +38,11 @@
         /// <summary>
         /// A nested <see cref="IEntry"/>
         /// </summary>
-        Subentry
+        Subentry,
+        
+        /// <summary>
+        /// A JSON value
+        /// </summary>
+        Json
     }
 }

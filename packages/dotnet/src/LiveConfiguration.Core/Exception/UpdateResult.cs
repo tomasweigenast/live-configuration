@@ -23,5 +23,13 @@ namespace LiveConfiguration.Core.Exception
         /// The amount of successful updates
         /// </summary>
         public int SuccessCount { get; set; }
+
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        public UpdateResult()
+        {
+            Exceptions = new Dictionary<int, System.Exception>();
+        }
     }
 }

@@ -34,5 +34,13 @@ namespace LiveConfiguration.Core.Exception
             ValueType = valueType;
             InvalidType = invalidType;
         }
+
+        public InvalidValueTypeException(string message, System.Exception innerException ) : base(message, innerException)
+        {
+        }
+
+        public InvalidValueTypeException(string message) : base(message)
+        {
+        }
     }
 }

@@ -24,6 +24,7 @@ namespace LiveConfiguration.Core.Source
         /// Reads a reference
         /// </summary>
         /// <param name="reference">The reference to read.</param>
-        Task<IEntry> ReadAsync(ConfigurationReference reference);
+        /// <returns>The values containing the reference as a dictionary, or null, if the reference no exists.</returns>
+        Task<Dictionary<string, object>> ReadAsync(ConfigurationReference reference);
     }
 }

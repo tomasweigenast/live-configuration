@@ -1,4 +1,5 @@
 ﻿using LiveConfiguration.Core.Exception;
+using LiveConfiguration.Core.Source;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -26,18 +27,18 @@ namespace LiveConfiguration.Core
         /// <summary>
         /// Updates an entry.
         /// </summary>
-        /// <param name="entryKey">The key of the <see cref="IEntry"/> to update.</param>
+        /// <param name="reference">The reference of the entry to update.</param>
         /// <param name="newValue">The new value to set.</param>
         /// <exception cref="EntryNotFoundException">The entity was not found.</exception>
         /// <exception cref="InvalidValueTypeException">The type of <paramref name="newValue"/> does not match with the target <see cref="IEntry"/> value type.</exception>
-        Task UpdateEntryAsync(string entryKey, object newValue);
+        Task UpdateEntryAsync(EntryReference reference, object newValue);
 
         /// <summary>
         /// Updates many entries at once.
         /// </summary>
-        /// <param name="updates">The key of the <see cref="IEntry"/> to update.</param>
+        /// <param name="updates">The entry references to update..</param>
         /// <exception cref="EntryNotFoundException">The entity was not found.</exception>
         /// <exception cref="InvalidValueTypeException">The type of <paramref name="newValue"/> does not match with the target <see cref="IEntry"/> value type.</exception>
-        Task<UpdateResult> UpdateManyAsync(IEnumerable<KeyValuePair<string, object>> updates);
+        Task<UpdateResult> UpdateManyAsync(IList<KeyValuePair<EntryReference, object>> updates);
     }
 }
