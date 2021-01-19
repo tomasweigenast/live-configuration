@@ -75,6 +75,7 @@ namespace LiveConfiguration.Core.DefaultImpl
         {
             // Get entries
             string name, description, key;
+            bool isEditable, isPublic;
             Dictionary<string, object> entryValue;
             try
             {
@@ -82,6 +83,8 @@ namespace LiveConfiguration.Core.DefaultImpl
                 description = dictionary.GetValue<string>("description");
                 key = dictionary.GetValue<string>("key");
                 entryValue = dictionary.GetValue<Dictionary<string, object>>("value");
+                isEditable = dictionary.GetValue<bool>("isEditable");
+                isPublic = dictionary.GetValue<bool>("isPublic");
             }
             catch (System.Exception ex)
             {
@@ -161,7 +164,7 @@ namespace LiveConfiguration.Core.DefaultImpl
                 throw new InvalidValueTypeException($"Cannot parse {valueType} to {objectValueType.FullName}.", ex);
             }
 
-            return new Entry(key, name, description, new EntryValue(valueType, value));
+            return new Entry(key, name, description, isEditable, isPublic, new EntryValue(valueType, value));
         }
 
         /// <summary>

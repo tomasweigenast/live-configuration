@@ -17,12 +17,20 @@ namespace LiveConfiguration.Core.DefaultImpl
         /// <inheritdoc/>
         public IEntryValue Value { get; }
 
-        public Entry(string key, string name, string description, IEntryValue value)
+        /// <inheritdoc/>
+        public bool IsEditable { get; }
+
+        /// <inheritdoc/>
+        public bool IsPublic { get; }
+
+        public Entry(string key, string name, string description, bool isEditable, bool isPublic, IEntryValue value)
         {
             Key = key;
             Name = name;
             Description = description;
             Value = value;
+            IsPublic = isPublic;
+            IsEditable = isEditable;
         }
 
         /// <inheritdoc/>
@@ -36,6 +44,8 @@ namespace LiveConfiguration.Core.DefaultImpl
                 { "name", Name },
                 { "key", Key },
                 { "description", Description },
+                { "isPublic", IsPublic },
+                { "isEditable", IsEditable },
                 { "value", ValueSerializer.Serialize(Value) },
             };
     }
