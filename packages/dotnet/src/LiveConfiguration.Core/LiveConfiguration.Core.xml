@@ -558,7 +558,7 @@
             Default constructor
             </summary>
         </member>
-        <member name="M:LiveConfiguration.Core.Helpers.HelperMethods.GetValue``1(System.Collections.Generic.Dictionary{System.String,System.Object},System.String)">
+        <member name="M:LiveConfiguration.Core.Helpers.HelperMethods.GetValue``1(System.Collections.Generic.Dictionary{System.String,System.Object},System.String,``0)">
             <summary>
             Gets the value of a dictionary, or null if its not found
             </summary>

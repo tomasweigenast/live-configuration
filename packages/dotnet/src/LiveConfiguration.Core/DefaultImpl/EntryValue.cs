@@ -1,5 +1,6 @@
 ﻿using LiveConfiguration.Core.Helpers;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -54,6 +55,10 @@ namespace LiveConfiguration.Core.DefaultImpl
                 else
                     throw new ArgumentException($"Cannot convert {rawType} to Subentry.");
             }
+
+            // Convert Json if is JToken
+            if(tValueType == ValueType.Json && mRawValue is JToken jToken)
+                return jToken.ToObject<T>();
 
             try
             {
