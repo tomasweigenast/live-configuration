@@ -10,13 +10,13 @@ namespace LiveConfiguration.Core.Helpers
         /// <summary>
         /// Gets the value of a dictionary, or null if its not found
         /// </summary>
-        public static T GetValue<T>(this Dictionary<string, object> dictionary, string key)
+        public static T GetValue<T>(this Dictionary<string, object> dictionary, string key, T defaultValue = default)
         {
             if (dictionary.ContainsKey(key))
             {
                 object value = dictionary[key];
                 if (value == null)
-                    return default;
+                    return defaultValue;
 
                 try
                 {
