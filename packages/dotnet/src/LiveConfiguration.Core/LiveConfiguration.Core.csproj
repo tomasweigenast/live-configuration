@@ -10,7 +10,7 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/TomasWeg/live-configuration</RepositoryUrl>
     <PackageProjectUrl>https://github.com/TomasWeg/live-configuration</PackageProjectUrl>
-    <Version>1.1.3</Version>
+    <Version>1.1.4</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
