@@ -1,4 +1,6 @@
-﻿namespace LiveConfiguration.Core
+﻿using System.Collections.Generic;
+
+namespace LiveConfiguration.Core
 {
     /// <summary>
     /// Represents a configuration entry in a source.
@@ -24,5 +26,10 @@
         /// The value of the entry
         /// </summary>
         public IEntryValue Value { get; }
+
+        /// <summary>
+        /// Returns the configuration entry as a dictionary.
+        /// </summary>
+        public Dictionary<string, object> ToDictionary();
     }
 }

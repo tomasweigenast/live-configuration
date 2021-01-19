@@ -1,5 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using LiveConfiguration.Core.Helpers;
+using Newtonsoft.Json;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace LiveConfiguration.Core.DefaultImpl
 {
@@ -23,6 +27,29 @@ namespace LiveConfiguration.Core.DefaultImpl
         /// <inheritdoc/>
         public T As<T>()
         {
+            Type tType = typeof(T);
+            ValueType tValueType = tType.GetValueType();
+            if (tValueType != mValueType)
+                throw new ArgumentException($"Cannot convert {mValueType} to {tValueType}.");
+
+            if (tValueType == ValueType.Timestamp && tType == typeof(DateTime))
+                return (T)Convert.ChangeType(((DateTimeOffset)mRawValue).DateTime, tType);
+
+            if(tValueType == ValueType.Subentry)
+            {
+                Type rawType = mRawValue.GetType();
+                List<IEntry> entries = new List<IEntry>();
+                if(typeof(IEnumerable).IsAssignableFrom(rawType) && rawType.GetGenericArguments()[0] == typeof(Dictionary<string, object>))
+                {
+                    foreach(Dictionary<string, object> entry in (IEnumerable)mRawValue)
+                        entries.Add(ValueSerializer.Deserialize(entry));
+
+                    return (T)Convert.ChangeType(entries, tType);
+                }
+                else
+                    throw new ArgumentException($"Cannot convert {rawType} to Subentry.");
+            }
+
             try
             {
                 return (T)mRawValue;
@@ -45,10 +72,6 @@ namespace LiveConfiguration.Core.DefaultImpl
             }
         }
 
-        /// <inheritdoc/>
-        public object GetRawValue()
-            => mRawValue;
-
         /// <summary>
         /// Sets the new raw value
         /// </summary>
@@ -56,6 +79,17 @@ namespace LiveConfiguration.Core.DefaultImpl
         public void SetValue(object newValue)
         {
             mRawValue = newValue;
+        }
+
+        /// <summary>
+        /// Returns the raw value
+        /// </summary>
+        public object GetRawValue() => mRawValue;
+
+        ///<inheritdoc/>
+        public object GetSerialized()
+        {
+            throw new NotImplementedException();
         }
     }
 }

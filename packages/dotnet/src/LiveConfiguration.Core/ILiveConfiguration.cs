@@ -11,34 +11,45 @@ namespace LiveConfiguration.Core
     public interface ILiveConfiguration
     {
         /// <summary>
+        /// The name of the instance
+        /// </summary>
+        public string Name { get; }
+
+        /// <summary>
         /// Gets an entry by its key
         /// </summary>
-        /// <param name="key">The key of the entry.</param>
+        /// <param name="reference">The reference to the entry.</param>
         /// <returns>The <see cref="IEntry"/>, or null if the entry could not be found.</returns>
-        Task<IEntry> GetEntryAsync(string key);
+        Task<IEntry> GetEntryAsync(ConfigurationReference reference);
 
         /// <summary>
         /// Grs a entry group by its name
         /// </summary>
-        /// <param name="name">The name of the group.</param>
+        /// <param name="reference">The reference to the group.</param>
         /// <returns>The <see cref="IEntryGroup"/> or null, if the group could not be found.</returns>
-        Task<IEntryGroup> GetGroupAsync(string name);
+        Task<IEntryGroup> GetGroupAsync(ConfigurationReference reference);
 
         /// <summary>
         /// Updates an entry.
         /// </summary>
-        /// <param name="reference">The reference of the entry to update.</param>
+        /// <param name="reference">The reference to the entry to update.</param>
         /// <param name="newValue">The new value to set.</param>
         /// <exception cref="EntryNotFoundException">The entity was not found.</exception>
         /// <exception cref="InvalidValueTypeException">The type of <paramref name="newValue"/> does not match with the target <see cref="IEntry"/> value type.</exception>
-        Task UpdateEntryAsync(EntryReference reference, object newValue);
+        Task UpdateEntryAsync(ConfigurationReference reference, object newValue);
 
         /// <summary>
         /// Updates many entries at once.
         /// </summary>
-        /// <param name="updates">The entry references to update..</param>
+        /// <param name="updates">The entry references to update.</param>
         /// <exception cref="EntryNotFoundException">The entity was not found.</exception>
         /// <exception cref="InvalidValueTypeException">The type of <paramref name="newValue"/> does not match with the target <see cref="IEntry"/> value type.</exception>
-        Task<UpdateResult> UpdateManyAsync(IList<KeyValuePair<EntryReference, object>> updates);
+        Task<UpdateResult> UpdateManyAsync(IList<KeyValuePair<ConfigurationReference, object>> updates);
+
+        /// <summary>
+        /// Creates a reference to an <see cref="IEntryGroup"/>
+        /// </summary>
+        /// <param name="id">The id of the group.</param>
+        GroupReference Group(string id);
     }
 }

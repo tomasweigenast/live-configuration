@@ -1,32 +1,37 @@
 ﻿namespace LiveConfiguration.Core.Source
 {
     /// <summary>
-    /// Represents a reference to either a configuration group or a configuration entry
+    /// A reference to an unknown entry in a configuration source.
     /// </summary>
     public abstract class ConfigurationReference
     {
-        private string mPath;
-
         /// <summary>
         /// The reference path
         /// </summary>
-        public string Path => mPath;
+        public string Path { get; }
+
+        /// <summary>
+        /// The parent reference or null if this is the root reference.
+        /// </summary>
+        public ConfigurationReference Parent { get; }
+
+        /// <summary>
+        /// Returns the length of the Path levels
+        /// </summary>
+        public int Size => Path?.Split('/').Length ?? 0;
+
+        protected ILiveConfiguration mLiveConfiguration;
 
         /// <summary>
         /// Initializes the configuration reference a gives an initial path
         /// </summary>
-        protected ConfigurationReference()
+        /// <param name="parent">The parent reference, if any.</param>
+        /// <param name="reference">The id of the entry.</param>
+        protected ConfigurationReference(ILiveConfiguration configuration, ConfigurationReference parent, string reference)
         {
-            mPath = "";
-        }
-
-        /// <summary>
-        /// Appends a path name
-        /// </summary>
-        /// <param name="name">The name of the path.</param>
-        protected void AppendPath(string name)
-        {
-            mPath += $"/{name}";
+            mLiveConfiguration = configuration;
+            Parent = parent;
+            Path = $"{(parent != null ? parent.Path : "")}/{reference}";
         }
     }
 }

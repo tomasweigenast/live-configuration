@@ -11,14 +11,14 @@
         public ValueType Type { get; }
 
         /// <summary>
-        /// Returns the raw value
-        /// </summary>
-        public object GetRawValue();
-
-        /// <summary>
         /// Converts the <see cref="IEntryValue"/> raw value
         /// to a specific type.
         /// </summary>
         T As<T>();
+
+        /// <summary>
+        /// Returns the raw value of the entry
+        /// </summary>
+        public object GetRawValue();
     }
 }

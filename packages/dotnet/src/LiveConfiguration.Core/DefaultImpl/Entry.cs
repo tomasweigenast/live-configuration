@@ -1,4 +1,6 @@
-﻿namespace LiveConfiguration.Core.DefaultImpl
+﻿using System.Collections.Generic;
+
+namespace LiveConfiguration.Core.DefaultImpl
 {
     /// <inheritdoc/>
     internal class Entry : IEntry
@@ -26,5 +28,15 @@
         /// <inheritdoc/>
         public override string ToString()
             => $"{Name} ({Key})";
+
+        /// <inheritdoc/>
+        public Dictionary<string, object> ToDictionary()
+            => new Dictionary<string, object>
+            {
+                { "name", Name },
+                { "key", Key },
+                { "description", Description },
+                { "value", ValueSerializer.Serialize(Value) },
+            };
     }
 }
