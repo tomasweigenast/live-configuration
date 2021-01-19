@@ -45,56 +45,60 @@ namespace LiveConfiguration.Firestore
         {
             string[] path = reference.Path.Split('/', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(x => x.Split('=', StringSplitOptions.RemoveEmptyEntries)[1]).ToArray();
             
-            // Read all the groups
-            if(path.Length == 0)
+            // Read groups
+            if(path.Length == 1)
             {
-                // Get the root collection
-                CollectionReference root = mFirestore.Collection(mOptions.CollectionName);
-                QuerySnapshot snapshot = await root.GetSnapshotAsync();
-
-                if (snapshot.Count <= 0)
-                    return null;
-
-                List<Dictionary<string, object>> groups = new List<Dictionary<string, object>>(snapshot.Count);
-
-                foreach (DocumentSnapshot document in snapshot.Documents)
+                // Get all groups
+                if(path[0] == ".")
                 {
-                    // Parse to dictionary
-                    Dictionary<string, object> groupDictionary = document.ToDictionary();
+                    // Get the root collection
+                    CollectionReference root = mFirestore.Collection(mOptions.CollectionName);
+                    QuerySnapshot snapshot = await root.GetSnapshotAsync();
 
-                    // Get entries
-                    QuerySnapshot entriesSnapshot = await document.Reference.Collection("entries").GetSnapshotAsync();
-                    if(entriesSnapshot.Count > 0)
-                        groupDictionary["entries"] = entriesSnapshot.Documents.Select(x => x.ToDictionary());
+                    if (snapshot.Count <= 0)
+                        return null;
 
-                    groups.Add(groupDictionary);
+                    List<Dictionary<string, object>> groups = new List<Dictionary<string, object>>(snapshot.Count);
+
+                    foreach (DocumentSnapshot document in snapshot.Documents)
+                    {
+                        // Parse to dictionary
+                        Dictionary<string, object> groupDictionary = document.ToDictionary();
+
+                        // Get entries
+                        QuerySnapshot entriesSnapshot = await document.Reference.Collection("entries").GetSnapshotAsync();
+                        if (entriesSnapshot.Count > 0)
+                            groupDictionary["entries"] = entriesSnapshot.Documents.Select(x => x.ToDictionary());
+
+                        groups.Add(groupDictionary);
+                    }
+
+                    return new Dictionary<string, object>
+                    {
+                        { "groups", groups }
+                    };
                 }
 
-                return new Dictionary<string, object>
+                // Get a single group
+                else
                 {
-                    { "groups", groups }
-                };
-            }
+                    // Create reference and get snapshot
+                    DocumentReference groupReference = mFirestore.Collection(mOptions.CollectionName).Document(path[0]);
+                    DocumentSnapshot groupSnapshot = await groupReference.GetSnapshotAsync();
 
-            // Read an entire group
-            else if(path.Length == 1)
-            {
-                // Create reference and get snapshot
-                DocumentReference groupReference = mFirestore.Collection(mOptions.CollectionName).Document(path[0]);
-                DocumentSnapshot groupSnapshot = await groupReference.GetSnapshotAsync();
+                    if (!groupSnapshot.Exists)
+                        return null;
 
-                if (!groupSnapshot.Exists)
-                    return null;
+                    // Parse to dictionary
+                    Dictionary<string, object> group = groupSnapshot.ToDictionary();
 
-                // Parse to dictionary
-                Dictionary<string, object> group = groupSnapshot.ToDictionary();
+                    // Get entries
+                    QuerySnapshot entriesSnapshot = await groupReference.Collection("entries").GetSnapshotAsync();
+                    if (entriesSnapshot.Count > 0)
+                        group["entries"] = entriesSnapshot.Documents.Select(x => x.ToDictionary()).ToList();
 
-                // Get entries
-                QuerySnapshot entriesSnapshot = await groupReference.Collection("entries").GetSnapshotAsync();
-                if (entriesSnapshot.Count > 0)
-                    group["entries"] = entriesSnapshot.Documents.Select(x => x.ToDictionary()).ToList();
-
-                return group;
+                    return group;
+                }
             }
 
             // Read a single entry

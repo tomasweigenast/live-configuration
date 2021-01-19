@@ -130,7 +130,7 @@ namespace LiveConfiguration.Core.DefaultImpl
             {
                 // Get all at "/" path
                 List<IEntryGroup> groupResult = new List<IEntryGroup>();
-                Dictionary<string, object> result = await mSource.ReadAsync(new GroupReference(this, null, "/"));
+                Dictionary<string, object> result = await mSource.ReadAsync(new GroupReference(this, null, "."));
                 List<Dictionary<string, object>> groups = result["groups"] as List<Dictionary<string, object>>;
                 foreach(var group in groups)
                 {

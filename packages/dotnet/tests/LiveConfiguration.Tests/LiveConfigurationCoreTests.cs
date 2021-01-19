@@ -197,6 +197,13 @@ namespace LiveConfiguration.Tests
             List<Example> listExample = jsonListEntry.Value.As<List<Example>>();
             Assert.NotNull(listExample);
         }
+
+        [Fact]
+        public async Task Test_getall()
+        {
+            IEnumerable<IEntryGroup> groups = await mLiveConfiguration.GetAllAsync();
+            Assert.NotNull(groups);
+        }
     }
 
     public class Example
