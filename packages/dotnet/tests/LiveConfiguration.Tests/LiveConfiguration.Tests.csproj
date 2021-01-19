@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\LiveConfiguration.Core\LiveConfiguration.Core.csproj" />
+    <ProjectReference Include="..\..\src\LiveConfiguration.Firestore\LiveConfiguration.Firestore.csproj" />
     <ProjectReference Include="..\..\src\LiveConfiguration.Memory\LiveConfiguration.Memory.csproj" />
   </ItemGroup>
 

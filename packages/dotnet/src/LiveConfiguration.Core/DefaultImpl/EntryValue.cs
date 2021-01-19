@@ -39,12 +39,17 @@ namespace LiveConfiguration.Core.DefaultImpl
             {
                 Type rawType = mRawValue.GetType();
                 List<IEntry> entries = new List<IEntry>();
-                if(typeof(IEnumerable).IsAssignableFrom(rawType) && rawType.GetGenericArguments()[0] == typeof(Dictionary<string, object>))
+                if (typeof(IEnumerable).IsAssignableFrom(rawType))
                 {
-                    foreach(Dictionary<string, object> entry in (IEnumerable)mRawValue)
-                        entries.Add(ValueSerializer.Deserialize(entry));
+                    if (rawType.GetGenericArguments()[0] == typeof(Dictionary<string, object>))
+                    {
+                        foreach (Dictionary<string, object> entry in (IEnumerable)mRawValue)
+                            entries.Add(ValueSerializer.Deserialize(entry));
 
-                    return (T)Convert.ChangeType(entries, tType);
+                        return (T)Convert.ChangeType(entries, tType);
+                    }
+                    else if (rawType.GetGenericArguments()[0] == typeof(IEntry))
+                        return (T)mRawValue;
                 }
                 else
                     throw new ArgumentException($"Cannot convert {rawType} to Subentry.");

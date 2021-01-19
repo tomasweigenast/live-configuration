@@ -143,7 +143,10 @@ namespace LiveConfiguration.Core.DefaultImpl
                     case ValueType.Subentry:
                         try
                         {
-                            List<Dictionary<string, object>> subEntryGroup = new List<Dictionary<string, object>>((IEnumerable<Dictionary<string, object>>)value);
+                            List<Dictionary<string, object>> subEntryGroup = new List<Dictionary<string, object>>();
+                            foreach(object entry in (IEnumerable<object>)value)
+                                subEntryGroup.Add((Dictionary<string, object>)entry);
+
                             value = subEntryGroup;
                         }
                         catch (System.Exception ex)

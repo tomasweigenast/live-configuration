@@ -13,7 +13,20 @@ namespace LiveConfiguration.Core.Helpers
         public static T GetValue<T>(this Dictionary<string, object> dictionary, string key)
         {
             if (dictionary.ContainsKey(key))
-                return (T)dictionary[key];
+            {
+                object value = dictionary[key];
+                if (value == null)
+                    return default;
+
+                try
+                {
+                    return (T)value;
+                }
+                catch
+                {
+                    return (T)Convert.ChangeType(value, typeof(T));
+                }
+            }
             else
                 return default;
         }
