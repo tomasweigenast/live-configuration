@@ -23,11 +23,16 @@ namespace LiveConfiguration.Core
         Task<IEntry> GetEntryAsync(ConfigurationReference reference);
 
         /// <summary>
-        /// Grs a entry group by its name
+        /// Gets a entry group by its name
         /// </summary>
         /// <param name="reference">The reference to the group.</param>
         /// <returns>The <see cref="IEntryGroup"/> or null, if the group could not be found.</returns>
         Task<IEntryGroup> GetGroupAsync(ConfigurationReference reference);
+
+        /// <summary>
+        /// Gets all the groups at once
+        /// </summary>
+        Task<IEnumerable<IEntryGroup>> GetAllAsync();
 
         /// <summary>
         /// Updates an entry.
@@ -43,7 +48,7 @@ namespace LiveConfiguration.Core
         /// </summary>
         /// <param name="updates">The entry references to update.</param>
         /// <exception cref="EntryNotFoundException">The entity was not found.</exception>
-        /// <exception cref="InvalidValueTypeException">The type of <paramref name="newValue"/> does not match with the target <see cref="IEntry"/> value type.</exception>
+        /// <exception cref="InvalidValueTypeException">The type of the new value does not match with the target <see cref="IEntry"/> value type.</exception>
         Task<UpdateResult> UpdateManyAsync(IList<KeyValuePair<ConfigurationReference, object>> updates);
 
         /// <summary>

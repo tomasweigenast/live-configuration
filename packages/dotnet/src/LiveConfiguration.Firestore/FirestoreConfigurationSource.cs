@@ -45,8 +45,39 @@ namespace LiveConfiguration.Firestore
         {
             string[] path = reference.Path.Split('/', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(x => x.Split('=', StringSplitOptions.RemoveEmptyEntries)[1]).ToArray();
             
+            // Read all the groups
+            if(path.Length == 0)
+            {
+                // Get the root collection
+                CollectionReference root = mFirestore.Collection(mOptions.CollectionName);
+                QuerySnapshot snapshot = await root.GetSnapshotAsync();
+
+                if (snapshot.Count <= 0)
+                    return null;
+
+                List<Dictionary<string, object>> groups = new List<Dictionary<string, object>>(snapshot.Count);
+
+                foreach (DocumentSnapshot document in snapshot.Documents)
+                {
+                    // Parse to dictionary
+                    Dictionary<string, object> groupDictionary = document.ToDictionary();
+
+                    // Get entries
+                    QuerySnapshot entriesSnapshot = await document.Reference.Collection("entries").GetSnapshotAsync();
+                    if(entriesSnapshot.Count > 0)
+                        groupDictionary["entries"] = entriesSnapshot.Documents.Select(x => x.ToDictionary());
+
+                    groups.Add(groupDictionary);
+                }
+
+                return new Dictionary<string, object>
+                {
+                    { "groups", groups }
+                };
+            }
+
             // Read an entire group
-            if(path.Length == 1)
+            else if(path.Length == 1)
             {
                 // Create reference and get snapshot
                 DocumentReference groupReference = mFirestore.Collection(mOptions.CollectionName).Document(path[0]);
@@ -65,6 +96,8 @@ namespace LiveConfiguration.Firestore
 
                 return group;
             }
+
+            // Read a single entry
             else
             {
                 DocumentReference documentReference = ToDocumentReference(path);

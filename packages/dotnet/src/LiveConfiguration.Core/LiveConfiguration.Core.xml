@@ -1,0 +1,809 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>LiveConfiguration.Core</name>
+    </assembly>
+    <members>
+        <member name="T:LiveConfiguration.Core.DefaultImpl.DefaultLiveConfiguration">
+            <inheritdoc/>
+        </member>
+        <member name="P:LiveConfiguration.Core.DefaultImpl.DefaultLiveConfiguration.Name">
+            <inheritdoc/>
+        </member>
+        <member name="M:LiveConfiguration.Core.DefaultImpl.DefaultLiveConfiguration.#ctor(System.String,LiveConfiguration.Core.Source.ILiveConfigurationSource,LiveConfiguration.Core.LiveConfigurationOptions)">
+            <summary>
+            Creates a new <see cref="T:LiveConfiguration.Core.ILiveConfiguration"/> instance.
+            </summary>
+            <param name="source">The <see cref="T:LiveConfiguration.Core.Source.ILiveConfigurationSource"/> to use.</param>
+        </member>
+        <member name="M:LiveConfiguration.Core.DefaultImpl.DefaultLiveConfiguration.Finalize">
+            <summary>
+            Destructor
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.DefaultImpl.DefaultLiveConfiguration.GetEntryAsync(LiveConfiguration.Core.Source.ConfigurationReference)">
+            <inheritdoc/>
+        </member>
+        <member name="M:LiveConfiguration.Core.DefaultImpl.DefaultLiveConfiguration.GetGroupAsync(LiveConfiguration.Core.Source.ConfigurationReference)">
+            <inheritdoc/>
+        </member>
+        <member name="M:LiveConfiguration.Core.DefaultImpl.DefaultLiveConfiguration.GetAllAsync">
+            <inheritdoc/>
+        </member>
+        <member name="M:LiveConfiguration.Core.DefaultImpl.DefaultLiveConfiguration.UpdateEntryAsync(LiveConfiguration.Core.Source.ConfigurationReference,System.Object)">
+            <inheritdoc/>
+        </member>
+        <member name="M:LiveConfiguration.Core.DefaultImpl.DefaultLiveConfiguration.UpdateManyAsync(System.Collections.Generic.IList{System.Collections.Generic.KeyValuePair{LiveConfiguration.Core.Source.ConfigurationReference,System.Object}})">
+            <inheritdoc/>
+        </member>
+        <member name="M:LiveConfiguration.Core.DefaultImpl.DefaultLiveConfiguration.Group(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:LiveConfiguration.Core.DefaultImpl.DefaultLiveConfiguration.CheckDisposed">
+            <summary>
+            Checks if the current instance is disposed.
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.DefaultImpl.DefaultLiveConfiguration.IsExpired">
+            <summary>
+            Returns true if the cache items are expired.
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.DefaultImpl.DefaultLiveConfiguration.CheckType(System.Object,LiveConfiguration.Core.IEntry)">
+            <summary>
+            Checks if an object is the same type as the entry value type
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.DefaultImpl.DefaultLiveConfiguration.JsonChecking(LiveConfiguration.Core.JsonEntryOptions.JsonCheckingType,System.Object,System.Object)">
+            <summary>
+            Does the json type checking
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.DefaultImpl.DefaultLiveConfiguration.LocalUpdate(LiveConfiguration.Core.IEntry,System.String[])">
+            <summary>
+            Updates an entry in the local cache if not expired
+            </summary>
+            <param name="entry">The entry to update.</param>
+        </member>
+        <member name="T:LiveConfiguration.Core.DefaultImpl.Entry">
+            <inheritdoc/>
+        </member>
+        <member name="P:LiveConfiguration.Core.DefaultImpl.Entry.Key">
+            <inheritdoc/>
+        </member>
+        <member name="P:LiveConfiguration.Core.DefaultImpl.Entry.Name">
+            <inheritdoc/>
+        </member>
+        <member name="P:LiveConfiguration.Core.DefaultImpl.Entry.Description">
+            <inheritdoc/>
+        </member>
+        <member name="P:LiveConfiguration.Core.DefaultImpl.Entry.Value">
+            <inheritdoc/>
+        </member>
+        <member name="P:LiveConfiguration.Core.DefaultImpl.Entry.IsEditable">
+            <inheritdoc/>
+        </member>
+        <member name="P:LiveConfiguration.Core.DefaultImpl.Entry.IsPublic">
+            <inheritdoc/>
+        </member>
+        <member name="M:LiveConfiguration.Core.DefaultImpl.Entry.ToString">
+            <inheritdoc/>
+        </member>
+        <member name="M:LiveConfiguration.Core.DefaultImpl.Entry.ToDictionary">
+            <inheritdoc/>
+        </member>
+        <member name="T:LiveConfiguration.Core.DefaultImpl.EntryGroup">
+            <inheritdoc/>
+        </member>
+        <member name="P:LiveConfiguration.Core.DefaultImpl.EntryGroup.Name">
+            <inheritdoc/>
+        </member>
+        <member name="P:LiveConfiguration.Core.DefaultImpl.EntryGroup.Description">
+            <inheritdoc/>
+        </member>
+        <member name="P:LiveConfiguration.Core.DefaultImpl.EntryGroup.Count">
+            <inheritdoc/>
+        </member>
+        <member name="P:LiveConfiguration.Core.DefaultImpl.EntryGroup.Id">
+            <inheritdoc/>
+        </member>
+        <member name="M:LiveConfiguration.Core.DefaultImpl.EntryGroup.Find(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:LiveConfiguration.Core.DefaultImpl.EntryGroup.GetEnumerator">
+            <inheritdoc/>
+        </member>
+        <member name="M:LiveConfiguration.Core.DefaultImpl.EntryGroup.ToDictionary">
+            <inheritdoc/>
+        </member>
+        <member name="M:LiveConfiguration.Core.DefaultImpl.EntryGroup.Update(LiveConfiguration.Core.IEntry)">
+            <inheritdoc/>
+        </member>
+        <member name="T:LiveConfiguration.Core.DefaultImpl.EntryValue">
+            <summary>
+            <inheritdoc/>
+            </summary>
+        </member>
+        <member name="P:LiveConfiguration.Core.DefaultImpl.EntryValue.Type">
+            <inheritdoc/>
+        </member>
+        <member name="M:LiveConfiguration.Core.DefaultImpl.EntryValue.As``1">
+            <inheritdoc/>
+        </member>
+        <member name="M:LiveConfiguration.Core.DefaultImpl.EntryValue.SetValue(System.Object)">
+            <summary>
+            Sets the new raw value
+            </summary>
+            <param name="newValue">The new value.</param>
+        </member>
+        <member name="M:LiveConfiguration.Core.DefaultImpl.EntryValue.GetRawValue">
+            <summary>
+            Returns the raw value
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.DefaultImpl.EntryValue.GetSerialized">
+            <inheritdoc/>
+        </member>
+        <member name="T:LiveConfiguration.Core.DefaultImpl.ValueSerializer">
+            <summary>
+            Provides methods to serialize an <see cref="T:LiveConfiguration.Core.IEntryValue"/>
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.DefaultImpl.ValueSerializer.Serialize(LiveConfiguration.Core.IEntryValue)">
+            <summary>
+            Serializes an <see cref="T:LiveConfiguration.Core.IEntryValue"/>
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.DefaultImpl.ValueSerializer.Deserialize(System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            Deserializes an <see cref="T:LiveConfiguration.Core.IEntryValue"/>
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.DefaultImpl.ValueSerializer.GetTimestamp(System.Object)">
+            <summary>
+            Converts a timestamp value to a <see cref="T:System.DateTimeOffset"/>
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.DefaultImpl.ValueSerializer.GetDuration(System.Object)">
+            <summary>
+            Converts a duration value to a <see cref="T:System.TimeSpan"/>
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.DefaultImpl.ValueSerializer.GetJson(System.Object)">
+            <summary>
+            Converts a JSON value to its specific type
+            </summary>
+        </member>
+        <member name="T:LiveConfiguration.Core.DependencyInjection.DependencyInjectionExtensions">
+            <summary>
+            Provides methods to inject an instance of <see cref="T:LiveConfiguration.Core.ILiveConfiguration"/> into the services
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.DependencyInjection.DependencyInjectionExtensions.AddLiveConfiguration(Microsoft.Extensions.DependencyInjection.IServiceCollection,LiveConfiguration.Core.Source.ILiveConfigurationSource,LiveConfiguration.Core.LiveConfigurationOptions)">
+            <summary>
+            Injects a singleton instance of <see cref="T:LiveConfiguration.Core.ILiveConfiguration"/>.
+            </summary>
+            <param name="services">The services to inject the instance to.</param>
+            <param name="source">The configuration source.</param>
+            <param name="options">The options to configure the instance.</param>
+        </member>
+        <member name="M:LiveConfiguration.Core.DependencyInjection.DependencyInjectionExtensions.AddLiveConfiguration(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Action{LiveConfiguration.Core.DependencyInjection.LiveConfigurationSetup})">
+            <summary>
+            Injects a singleton instance of <see cref="T:LiveConfiguration.Core.ILiveConfiguration"/>.
+            </summary>
+            <param name="services">The services to inject the instance to.</param>
+            <param name="setupAction">The action to setup the instance.</param>
+        </member>
+        <member name="T:LiveConfiguration.Core.DependencyInjection.LiveConfigurationSetup">
+            <summary>
+            Provides methods to setup a <see cref="T:LiveConfiguration.Core.ILiveConfiguration"/> instance.
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.DependencyInjection.LiveConfigurationSetup.WithSource``1">
+            <summary>
+            Sets the <see cref="T:LiveConfiguration.Core.Source.ILiveConfigurationSource"/> to use.
+            </summary>
+            <typeparam name="TSource">The <see cref="T:LiveConfiguration.Core.Source.ILiveConfigurationSource"/> implementation type.</typeparam>
+        </member>
+        <member name="M:LiveConfiguration.Core.DependencyInjection.LiveConfigurationSetup.WithSource``1(``0)">
+            <summary>
+            Sets the <see cref="T:LiveConfiguration.Core.Source.ILiveConfigurationSource"/> to use.
+            </summary>
+            <typeparam name="TSource">The <see cref="T:LiveConfiguration.Core.Source.ILiveConfigurationSource"/> implementation type.</typeparam>
+            <param name="implementation">The instance to the implementation to use.</param>
+        </member>
+        <member name="M:LiveConfiguration.Core.DependencyInjection.LiveConfigurationSetup.WithOptions(LiveConfiguration.Core.LiveConfigurationOptions)">
+            <summary>
+            Sets the <see cref="T:LiveConfiguration.Core.LiveConfigurationOptions"/> to use.
+            </summary>
+            <param name="options">The options to use.</param>
+        </member>
+        <member name="M:LiveConfiguration.Core.DependencyInjection.LiveConfigurationSetup.WithOptions(System.Action{LiveConfiguration.Core.LiveConfigurationOptions})">
+            <summary>
+            Sets the <see cref="T:LiveConfiguration.Core.LiveConfigurationOptions"/> to use.
+            </summary>
+            <param name="configureAction">The action used to configure.</param>
+        </member>
+        <member name="T:LiveConfiguration.Core.Entry.EntryFactory">
+            <summary>
+            Provides methods to create <see cref="T:LiveConfiguration.Core.IEntry"/> and <see cref="T:LiveConfiguration.Core.IEntryGroup"/> instances.
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.Entry.EntryFactory.For``1(System.String,System.String,``0)">
+            <summary>
+            Creates a new <see cref="T:LiveConfiguration.Core.IEntry"/>
+            </summary>
+            <typeparam name="TValue">The value type to store.</typeparam>
+            <param name="key">The key.</param>
+            <param name="name">The name.</param>
+            <param name="value">The intial value.</param>
+        </member>
+        <member name="M:LiveConfiguration.Core.Entry.EntryFactory.For``1(System.String,System.String,System.String,System.Boolean,System.Boolean,``0)">
+            <summary>
+            Creates a new <see cref="T:LiveConfiguration.Core.IEntry"/>
+            </summary>
+            <typeparam name="TValue">The value type to store.</typeparam>
+            <param name="key">The key.</param>
+            <param name="name">The name.</param>
+            <param name="description">The description.</param>
+            <param name="isEditable">Indicates if the property will be editable.</param>
+            <param name="isPublic">Indicates if the property will be public.</param>
+            <param name="value">The intial value.</param>
+        </member>
+        <member name="M:LiveConfiguration.Core.Entry.EntryFactory.For``1(System.String,System.String,System.String,``0)">
+            <summary>
+            Creates a new <see cref="T:LiveConfiguration.Core.IEntry"/>
+            </summary>
+            <typeparam name="TValue">The value type to store.</typeparam>
+            <param name="key">The key.</param>
+            <param name="name">The name.</param>
+            <param name="description">The description.</param>
+            <param name="value">The intial value.</param>
+        </member>
+        <member name="M:LiveConfiguration.Core.Entry.EntryFactory.ForSubEntry(System.String,System.String,System.Collections.Generic.IEnumerable{LiveConfiguration.Core.IEntry})">
+            <summary>
+            Creates a new <see cref="T:LiveConfiguration.Core.IEntry"/> which holds <see cref="F:LiveConfiguration.Core.ValueType.Subentry"/>
+            </summary>
+            <typeparam name="T">The subentries value type.</typeparam>
+            <param name="key">The key of the entry.</param>
+            <param name="name">The name of the entry.</param>
+            <param name="subEntries">The subentries to add.</param>
+        </member>
+        <member name="M:LiveConfiguration.Core.Entry.EntryFactory.ForSubEntry(System.String,System.String,System.String,System.Collections.Generic.IEnumerable{LiveConfiguration.Core.IEntry})">
+            <summary>
+            Creates a new <see cref="T:LiveConfiguration.Core.IEntry"/> which holds <see cref="F:LiveConfiguration.Core.ValueType.Subentry"/>
+            </summary>
+            <param name="key">The key of the entry.</param>
+            <param name="name">The name of the entry.</param>
+            <param name="description">The description of the entry.</param>
+            <param name="subEntries">The subentries to add.</param>
+        </member>
+        <member name="M:LiveConfiguration.Core.Entry.EntryFactory.ForSubEntry(System.String,System.String,System.String,System.Boolean,System.Boolean,System.Collections.Generic.IEnumerable{LiveConfiguration.Core.IEntry})">
+            <summary>
+            Creates a new <see cref="T:LiveConfiguration.Core.IEntry"/> which holds <see cref="F:LiveConfiguration.Core.ValueType.Subentry"/>
+            </summary>
+            <param name="key">The key of the entry.</param>
+            <param name="name">The name of the entry.</param>
+            <param name="description">The description of the entry.</param>
+            /// <param name="isEditable">Indicates if the property will be editable.</param>
+            <param name="isPublic">Indicates if the property will be public.</param>
+            <param name="subEntries">The subentries to add.</param>
+        </member>
+        <member name="M:LiveConfiguration.Core.Entry.EntryFactory.Group(System.String,System.String,LiveConfiguration.Core.IEntry[])">
+            <summary>
+            Creates a new <see cref="T:LiveConfiguration.Core.IEntryGroup"/>
+            </summary>
+            <param name="name">The name of the group.</param>
+            <param name="description">The description of the group.</param>
+            <param name="entries">The entries of the group.</param>
+        </member>
+        <member name="M:LiveConfiguration.Core.Entry.EntryFactory.Group(System.String,System.String,System.String,LiveConfiguration.Core.IEntry[])">
+            <summary>
+            Creates a new <see cref="T:LiveConfiguration.Core.IEntryGroup"/>
+            </summary>
+            <param name="id">The id of the group.</param>
+            <param name="name">The name of the group.</param>
+            <param name="description">The description of the group.</param>
+            <param name="entries">The entries of the group.</param>
+        </member>
+        <member name="T:LiveConfiguration.Core.IEntry">
+            <summary>
+            Represents a configuration entry in a source.
+            </summary>
+        </member>
+        <member name="P:LiveConfiguration.Core.IEntry.Key">
+            <summary>
+            The key of the configuration entry
+            </summary>
+        </member>
+        <member name="P:LiveConfiguration.Core.IEntry.Name">
+            <summary>
+            A friendly name of the entry
+            </summary>
+        </member>
+        <member name="P:LiveConfiguration.Core.IEntry.Description">
+            <summary>
+            An optional description for the entry
+            </summary>
+        </member>
+        <member name="P:LiveConfiguration.Core.IEntry.Value">
+            <summary>
+            The value of the entry
+            </summary>
+        </member>
+        <member name="P:LiveConfiguration.Core.IEntry.IsEditable">
+            <summary>
+            Indicates if the entry is editable or not. Defaults to true true.
+            It can be useful if you want to block an entry to prevent updates.
+            </summary>
+        </member>
+        <member name="P:LiveConfiguration.Core.IEntry.IsPublic">
+            <summary>
+            Indicates if the entry is public or not. Defaults to true.
+            This property can be used to filter entries when they are public to some backend users.
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.IEntry.ToDictionary">
+            <summary>
+            Returns the configuration entry as a dictionary.
+            </summary>
+        </member>
+        <member name="T:LiveConfiguration.Core.IEntryGroup">
+            <summary>
+            Represents a collection of <see cref="T:LiveConfiguration.Core.IEntry"/> which can contain a name
+            </summary>
+        </member>
+        <member name="P:LiveConfiguration.Core.IEntryGroup.Count">
+            <summary>
+            The count of entries in the group
+            </summary>
+        </member>
+        <member name="P:LiveConfiguration.Core.IEntryGroup.Name">
+            <summary>
+            The name of the colletion
+            </summary>
+        </member>
+        <member name="P:LiveConfiguration.Core.IEntryGroup.Description">
+            <summary>
+            The description of the group
+            </summary>
+        </member>
+        <member name="P:LiveConfiguration.Core.IEntryGroup.Id">
+            <summary>
+            The id of the group
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.IEntryGroup.Find(System.String)">
+            <summary>
+            Finds an <see cref="T:LiveConfiguration.Core.IEntry"/> searching by its key
+            </summary>
+            <param name="key">The key of the entry to search.</param>
+        </member>
+        <member name="M:LiveConfiguration.Core.IEntryGroup.Update(LiveConfiguration.Core.IEntry)">
+            <summary>
+            Updates an value
+            </summary>
+            <param name="entry">The entry to update.</param>
+        </member>
+        <member name="M:LiveConfiguration.Core.IEntryGroup.ToDictionary">
+            <summary>
+            Returns a dictionary representing the actual group
+            </summary>
+        </member>
+        <member name="T:LiveConfiguration.Core.IEntryValue">
+            <summary>
+            Contains the value of an <see cref="T:LiveConfiguration.Core.IEntry"/>
+            </summary>
+        </member>
+        <member name="P:LiveConfiguration.Core.IEntryValue.Type">
+            <summary>
+            The entry value type
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.IEntryValue.As``1">
+            <summary>
+            Converts the <see cref="T:LiveConfiguration.Core.IEntryValue"/> raw value
+            to a specific type.
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.IEntryValue.GetRawValue">
+            <summary>
+            Returns the raw value of the entry
+            </summary>
+        </member>
+        <member name="T:LiveConfiguration.Core.ValueType">
+            <summary>
+            Represents the value type a <see cref="T:LiveConfiguration.Core.IEntryValue"/> stores.
+            </summary>
+        </member>
+        <member name="F:LiveConfiguration.Core.ValueType.String">
+            <summary>
+            A plain string
+            </summary>
+        </member>
+        <member name="F:LiveConfiguration.Core.ValueType.Int">
+            <summary>
+            Any integer number, positive or negative.
+            </summary>
+        </member>
+        <member name="F:LiveConfiguration.Core.ValueType.Double">
+            <summary>
+            Any double value.
+            </summary>
+        </member>
+        <member name="F:LiveConfiguration.Core.ValueType.Boolean">
+            <summary>
+            A boolean value
+            </summary>
+        </member>
+        <member name="F:LiveConfiguration.Core.ValueType.Timestamp">
+            <summary>
+            A timestamp representing a date and time which can contain an offset.
+            </summary>
+        </member>
+        <member name="F:LiveConfiguration.Core.ValueType.Duration">
+            <summary>
+            A duration value
+            </summary>
+        </member>
+        <member name="F:LiveConfiguration.Core.ValueType.Subentry">
+            <summary>
+            A nested <see cref="T:LiveConfiguration.Core.IEntry"/>
+            </summary>
+        </member>
+        <member name="F:LiveConfiguration.Core.ValueType.Json">
+            <summary>
+            A JSON value
+            </summary>
+        </member>
+        <member name="T:LiveConfiguration.Core.Exception.EntryNotFoundException">
+            <summary>
+            Exception thrown when an <see cref="T:LiveConfiguration.Core.IEntry"/> is not found
+            </summary>
+        </member>
+        <member name="P:LiveConfiguration.Core.Exception.EntryNotFoundException.EntryName">
+            <summary>
+            The name of the entry not found
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.Exception.EntryNotFoundException.#ctor(System.String)">
+            <summary>
+            Creates a new instance
+            </summary>
+            <param name="entryName">The name of the entry that was not found.</param>
+        </member>
+        <member name="T:LiveConfiguration.Core.Exception.InvalidEntryException">
+            <summary>
+            Exception thrown when its tried to parse an <see cref="T:LiveConfiguration.Core.IEntry"/> and its mal formed.
+            </summary>
+        </member>
+        <member name="P:LiveConfiguration.Core.Exception.InvalidEntryException.EntryKey">
+            <summary>
+            The key of the entry mal formed
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.Exception.InvalidEntryException.#ctor(System.String,System.String)">
+            <summary>
+            Creates a new instance
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.Exception.InvalidEntryException.#ctor(System.String)">
+            <summary>
+            Creates a new instance
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.Exception.InvalidEntryException.#ctor(System.String,System.Exception)">
+            <summary>
+            Creates a new instance
+            </summary>
+        </member>
+        <member name="T:LiveConfiguration.Core.Exception.InvalidValueTypeException">
+            <summary>
+            Exception thrown when is tried to update an <see cref="T:LiveConfiguration.Core.IEntry"/> with an invalid value
+            </summary>
+        </member>
+        <member name="P:LiveConfiguration.Core.Exception.InvalidValueTypeException.EntryName">
+            <summary>
+            The name of the entry
+            </summary>
+        </member>
+        <member name="P:LiveConfiguration.Core.Exception.InvalidValueTypeException.ValueType">
+            <summary>
+            The correct value type of the entry
+            </summary>
+        </member>
+        <member name="P:LiveConfiguration.Core.Exception.InvalidValueTypeException.InvalidType">
+            <summary>
+            The invalid object type
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.Exception.InvalidValueTypeException.#ctor(System.String,LiveConfiguration.Core.ValueType,System.Type)">
+            <summary>
+            Creates a new instance
+            </summary>
+            <param name="entryName">The name of the entry that was not found.</param>
+            <param name="valueType">The correct value type of the entry.</param>
+            <param name="invalidValue">The invalid value type.</param>
+        </member>
+        <member name="T:LiveConfiguration.Core.Exception.JsonMismatchException">
+            <summary>
+            Exception thrown when JSON hard checking is made and the new object does not match
+            the properties of the older one.
+            </summary>
+        </member>
+        <member name="T:LiveConfiguration.Core.Exception.UpdateResult">
+            <summary>
+            Contains the result of an update operation
+            </summary>
+        </member>
+        <member name="P:LiveConfiguration.Core.Exception.UpdateResult.Exceptions">
+            <summary>
+            The list of exceptions that happened, if any in the following format:
+            Key: the index of the entry in the passed update list.
+            Value: The exception that was thrown.
+            </summary>
+        </member>
+        <member name="P:LiveConfiguration.Core.Exception.UpdateResult.FailedCount">
+            <summary>
+            The amount of failure updates
+            </summary>
+        </member>
+        <member name="P:LiveConfiguration.Core.Exception.UpdateResult.SuccessCount">
+            <summary>
+            The amount of successful updates
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.Exception.UpdateResult.#ctor">
+            <summary>
+            Default constructor
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.Helpers.HelperMethods.GetValue``1(System.Collections.Generic.Dictionary{System.String,System.Object},System.String)">
+            <summary>
+            Gets the value of a dictionary, or null if its not found
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.Helpers.HelperMethods.ToStringArray(LiveConfiguration.Core.Source.ConfigurationReference)">
+            <summary>
+            Parses a chainable <see cref="T:LiveConfiguration.Core.Source.ConfigurationReference"/> to a array of 
+            strings containing the paths
+            </summary>
+        </member>
+        <member name="T:LiveConfiguration.Core.ILiveConfiguration">
+            <summary>
+            Defines the main entry point to a configuration source.
+            </summary>
+        </member>
+        <member name="P:LiveConfiguration.Core.ILiveConfiguration.Name">
+            <summary>
+            The name of the instance
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.ILiveConfiguration.GetEntryAsync(LiveConfiguration.Core.Source.ConfigurationReference)">
+            <summary>
+            Gets an entry by its key
+            </summary>
+            <param name="reference">The reference to the entry.</param>
+            <returns>The <see cref="T:LiveConfiguration.Core.IEntry"/>, or null if the entry could not be found.</returns>
+        </member>
+        <member name="M:LiveConfiguration.Core.ILiveConfiguration.GetGroupAsync(LiveConfiguration.Core.Source.ConfigurationReference)">
+            <summary>
+            Gets a entry group by its name
+            </summary>
+            <param name="reference">The reference to the group.</param>
+            <returns>The <see cref="T:LiveConfiguration.Core.IEntryGroup"/> or null, if the group could not be found.</returns>
+        </member>
+        <member name="M:LiveConfiguration.Core.ILiveConfiguration.GetAllAsync">
+            <summary>
+            Gets all the groups at once
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.ILiveConfiguration.UpdateEntryAsync(LiveConfiguration.Core.Source.ConfigurationReference,System.Object)">
+            <summary>
+            Updates an entry.
+            </summary>
+            <param name="reference">The reference to the entry to update.</param>
+            <param name="newValue">The new value to set.</param>
+            <exception cref="T:LiveConfiguration.Core.Exception.EntryNotFoundException">The entity was not found.</exception>
+            <exception cref="T:LiveConfiguration.Core.Exception.InvalidValueTypeException">The type of <paramref name="newValue"/> does not match with the target <see cref="T:LiveConfiguration.Core.IEntry"/> value type.</exception>
+        </member>
+        <member name="M:LiveConfiguration.Core.ILiveConfiguration.UpdateManyAsync(System.Collections.Generic.IList{System.Collections.Generic.KeyValuePair{LiveConfiguration.Core.Source.ConfigurationReference,System.Object}})">
+            <summary>
+            Updates many entries at once.
+            </summary>
+            <param name="updates">The entry references to update.</param>
+            <exception cref="T:LiveConfiguration.Core.Exception.EntryNotFoundException">The entity was not found.</exception>
+            <exception cref="T:LiveConfiguration.Core.Exception.InvalidValueTypeException">The type of the new value does not match with the target <see cref="T:LiveConfiguration.Core.IEntry"/> value type.</exception>
+        </member>
+        <member name="M:LiveConfiguration.Core.ILiveConfiguration.Group(System.String)">
+            <summary>
+            Creates a reference to an <see cref="T:LiveConfiguration.Core.IEntryGroup"/>
+            </summary>
+            <param name="id">The id of the group.</param>
+        </member>
+        <member name="T:LiveConfiguration.Core.LiveConfig">
+            <summary>
+            Provides methods to create and generate <see cref="T:LiveConfiguration.Core.ILiveConfiguration"/> instances.
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.LiveConfig.Create(System.String)">
+            <summary>
+            Creates a new <see cref="T:LiveConfiguration.Core.LiveConfigurationBuilder"/> to build an <see cref="T:LiveConfiguration.Core.ILiveConfiguration"/>
+            </summary>
+            <param name="name">The name of the final <see cref="T:LiveConfiguration.Core.ILiveConfiguration"/> instance.</param>
+        </member>
+        <member name="T:LiveConfiguration.Core.LiveConfigurationBuilder">
+            <summary>
+            Contains chainable methods to build an <see cref="T:LiveConfiguration.Core.ILiveConfiguration"/>
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.LiveConfigurationBuilder.#ctor(System.String)">
+            <summary>
+            Internal constructor
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.LiveConfigurationBuilder.WithOptions(LiveConfiguration.Core.LiveConfigurationOptions)">
+            <summary>
+            Sets the options for the <see cref="T:LiveConfiguration.Core.ILiveConfiguration"/>
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.LiveConfigurationBuilder.WithOptions(System.Action{LiveConfiguration.Core.LiveConfigurationOptions})">
+            <summary>
+            Sets the options for the <see cref="T:LiveConfiguration.Core.ILiveConfiguration"/>
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.LiveConfigurationBuilder.WithSource(LiveConfiguration.Core.Source.ILiveConfigurationSource)">
+            <summary>
+            Specifies the <see cref="T:LiveConfiguration.Core.Source.ILiveConfigurationSource"/> source to use.
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.LiveConfigurationBuilder.Build">
+            <summary>
+            Builds the <see cref="T:LiveConfiguration.Core.ILiveConfiguration"/> instance.
+            </summary>
+        </member>
+        <member name="T:LiveConfiguration.Core.LiveConfigurationOptions">
+            <summary>
+            Configuration options for a <see cref="T:LiveConfiguration.Core.ILiveConfiguration"/>
+            </summary>
+        </member>
+        <member name="P:LiveConfiguration.Core.LiveConfigurationOptions.CacheExpiration">
+            <summary>
+            The expiration duration of the cache items.
+            Defaults to: 15 minutes.
+            </summary>
+        </member>
+        <member name="P:LiveConfiguration.Core.LiveConfigurationOptions.JsonOptions">
+            <summary>
+            The options while encoding and decoding <see cref="F:LiveConfiguration.Core.ValueType.Json"/> types.
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.LiveConfigurationOptions.Default">
+            <summary>
+            Returns a new instance of <see cref="T:LiveConfiguration.Core.LiveConfigurationOptions"/> with the default values
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.LiveConfigurationOptions.ExistingOrDefault(LiveConfiguration.Core.LiveConfigurationOptions)">
+            <summary>
+            Returns a new instance of the properties with the default values where are not initialized.
+            </summary>
+        </member>
+        <member name="T:LiveConfiguration.Core.JsonEntryOptions">
+            <summary>
+            Configuration options that handles how is the behaviour while decoding and encoding
+            <see cref="F:LiveConfiguration.Core.ValueType.Json"/> types.
+            </summary>
+        </member>
+        <member name="P:LiveConfiguration.Core.JsonEntryOptions.CheckingType">
+            <summary>
+            The checking type done while decoding.
+            Defaults to: <see cref="F:LiveConfiguration.Core.JsonEntryOptions.JsonCheckingType.TypeChecking"/>
+            </summary>
+        </member>
+        <member name="T:LiveConfiguration.Core.JsonEntryOptions.JsonCheckingType">
+            <summary>
+            The checking type used while decoding and encoding
+            </summary>
+        </member>
+        <member name="F:LiveConfiguration.Core.JsonEntryOptions.JsonCheckingType.HardChecking">
+            <summary>
+            When this is used, the type of the objects are checked, the name of the properties
+            and its not allowed to remove existing ones.
+            </summary>
+        </member>
+        <member name="F:LiveConfiguration.Core.JsonEntryOptions.JsonCheckingType.TypeChecking">
+            <summary>
+            Only checks if the type of the objects match
+            </summary>
+        </member>
+        <member name="F:LiveConfiguration.Core.JsonEntryOptions.JsonCheckingType.None">
+            <summary>
+            No checking is made. This ensures the maximum performance without concistency.
+            </summary>
+        </member>
+        <member name="T:LiveConfiguration.Core.Source.ILiveConfigurationSource">
+            <summary>
+            Represents a <see cref="T:LiveConfiguration.Core.ILiveConfiguration"/> source where the data is stored and retrieved from.
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.Source.ILiveConfigurationSource.WriteAsync(LiveConfiguration.Core.Source.ConfigurationReference,System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            Writes an entry
+            </summary>
+            <param name="reference">The reference of the entry.</param>
+            <param name="entry">The entry to write.</param>
+        </member>
+        <member name="M:LiveConfiguration.Core.Source.ILiveConfigurationSource.WriteAsync(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.Collections.Generic.Dictionary{System.String,System.Object},LiveConfiguration.Core.Source.ConfigurationReference}})">
+            <summary>
+            Writes many entries at once
+            </summary>
+            <param name="entries">The entries to write.</param>
+        </member>
+        <member name="M:LiveConfiguration.Core.Source.ILiveConfigurationSource.ReadAsync(LiveConfiguration.Core.Source.ConfigurationReference)">
+            <summary>
+            Reads a reference
+            </summary>
+            <param name="reference">The reference to read.</param>
+            <returns>The reference snapshot.</returns>
+        </member>
+        <member name="T:LiveConfiguration.Core.Source.ConfigurationReference">
+            <summary>
+            A reference to an unknown entry in a configuration source.
+            </summary>
+        </member>
+        <member name="P:LiveConfiguration.Core.Source.ConfigurationReference.Path">
+            <summary>
+            The reference path
+            </summary>
+        </member>
+        <member name="P:LiveConfiguration.Core.Source.ConfigurationReference.Parent">
+            <summary>
+            The parent reference or null if this is the root reference.
+            </summary>
+        </member>
+        <member name="P:LiveConfiguration.Core.Source.ConfigurationReference.Size">
+            <summary>
+            Returns the length of the Path levels
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.Source.ConfigurationReference.#ctor(LiveConfiguration.Core.ILiveConfiguration,LiveConfiguration.Core.Source.ConfigurationReference,System.String)">
+            <summary>
+            Initializes the configuration reference a gives an initial path
+            </summary>
+            <param name="parent">The parent reference, if any.</param>
+            <param name="reference">The id of the entry.</param>
+        </member>
+        <member name="T:LiveConfiguration.Core.Source.EntryReference">
+            <summary>
+            A reference to an <see cref="T:LiveConfiguration.Core.IEntry"/>
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.Source.EntryReference.Entry(System.String)">
+            <summary>
+            Creates a <see cref="T:LiveConfiguration.Core.Source.EntryReference"/> for a nested entry of this reference.
+            </summary>
+            <param name="key">The key of the nested entry.</param>
+        </member>
+        <member name="M:LiveConfiguration.Core.Source.EntryReference.GetAsync">
+            <summary>
+            Gets the entry
+            </summary>
+        </member>
+        <member name="T:LiveConfiguration.Core.Source.GroupReference">
+            <summary>
+            A reference to an <see cref="T:LiveConfiguration.Core.IEntryGroup"/>
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.Source.GroupReference.Entry(System.String)">
+            <summary>
+            Creates a <see cref="T:LiveConfiguration.Core.Source.EntryReference"/> for a child entry of this reference.
+            </summary>
+            <param name="key">The key of the entry.</param>
+        </member>
+        <member name="M:LiveConfiguration.Core.Source.GroupReference.GetAsync">
+            <summary>
+            Gets the entry group
+            </summary>
+        </member>
+    </members>
+</doc>

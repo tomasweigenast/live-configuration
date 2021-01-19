@@ -121,6 +121,33 @@ namespace LiveConfiguration.Core.DefaultImpl
         }
 
         /// <inheritdoc/>
+        public async Task<IEnumerable<IEntryGroup>> GetAllAsync()
+        {
+            CheckDisposed();
+
+            // Get from source
+            if (IsExpired())
+            {
+                // Get all at "/" path
+                List<IEntryGroup> groupResult = new List<IEntryGroup>();
+                Dictionary<string, object> result = await mSource.ReadAsync(new GroupReference(this, null, "/"));
+                List<Dictionary<string, object>> groups = result["groups"] as List<Dictionary<string, object>>;
+                foreach(var group in groups)
+                {
+                    IEntryGroup parsedGroup = ParseEntryGroup(group);
+                    groupResult.Add(parsedGroup);
+                    mCache[parsedGroup.Id] = parsedGroup;
+                }
+
+                return groupResult;
+            }
+
+            // Get from cache
+            else
+                return mCache.Select(x => x.Value);
+        }
+
+        /// <inheritdoc/>
         public async Task UpdateEntryAsync(ConfigurationReference reference, object newValue)
         {
             // Get entry

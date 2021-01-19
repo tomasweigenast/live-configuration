@@ -180,6 +180,23 @@ namespace LiveConfiguration.Tests
             await Assert.ThrowsAsync<InvalidValueTypeException>(async () => await mLiveConfiguration.UpdateEntryAsync(entryReference5, "test"));
             await Assert.ThrowsAsync<InvalidValueTypeException>(async () => await mLiveConfiguration.UpdateEntryAsync(entryReference4, true));
         }
+
+        [Fact]
+        public void Test_value_as()
+        {
+            IEntry jsonEntry = EntryFactory.For("jsonValue", "A simple json", new Example { Text = "que tal", TextLength = 7 });
+            Example example = jsonEntry.Value.As<Example>();
+            Assert.NotNull(example);
+
+            IEntry jsonListEntry = EntryFactory.For("jsonValue", "A simple json", new List<Example>
+            {
+                new Example { Text = "que tal", TextLength = 7 },
+                new Example { Text = "¡Hola mundo!", TextLength = 54 },
+                new Example { Text = "¡Hola mundo!", TextLength = 54, Values = new List<string> { "string", "dos", "tres" } }
+            });
+            List<Example> listExample = jsonListEntry.Value.As<List<Example>>();
+            Assert.NotNull(listExample);
+        }
     }
 
     public class Example
