@@ -5,6 +5,7 @@ using LiveConfiguration.Core.Source;
 using LiveConfiguration.Memory;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -203,6 +204,14 @@ namespace LiveConfiguration.Tests
         {
             IEnumerable<IEntryGroup> groups = await mLiveConfiguration.GetAllAsync();
             Assert.NotNull(groups);
+        }
+
+        [Fact]
+        public async Task Test_enumerate_group()
+        {
+            IEntryGroup group = await mLiveConfiguration.GetGroupAsync(mLiveConfiguration.Group("1"));
+            List<IEntry> entries = group.Where(x => x.Key.Contains("time", StringComparison.OrdinalIgnoreCase)).ToList();
+            Assert.Equal(2, entries.Count);
         }
     }
 

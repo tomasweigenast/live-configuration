@@ -8,7 +8,7 @@ namespace LiveConfiguration.Core.DefaultImpl
     ///<inheritdoc/>
     internal class EntryGroup : IEntryGroup
     {
-        private IEntry[] mEntries;
+        private readonly IEntry[] mEntries;
 
         public EntryGroup(string id, string name, string description, IEntry[] entries)
         {
@@ -52,10 +52,6 @@ namespace LiveConfiguration.Core.DefaultImpl
         }
 
         ///<inheritdoc/>
-        public IEnumerator GetEnumerator()
-            => new EntryGroupEnumerator(mEntries);
-
-        ///<inheritdoc/>
         public Dictionary<string, object> ToDictionary()
             => new Dictionary<string, object>
             {
@@ -79,34 +75,13 @@ namespace LiveConfiguration.Core.DefaultImpl
             }
         }
 
-        IEnumerator<IEntry> IEnumerable<IEntry>.GetEnumerator()
-            => (IEnumerator<IEntry>)GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator()
+            => GetEnumerator();
 
-        private class EntryGroupEnumerator : IEnumerator
+        public IEnumerator<IEntry> GetEnumerator()
         {
-            private readonly IEntry[] mEntries;
-            private int mPosition = -1;
-
-            public EntryGroupEnumerator(IEntry[] entries)
-            {
-                mEntries = entries;
-            }
-
-            public object Current => mEntries[mPosition];
-
-            public bool MoveNext()
-            {
-                mPosition++;
-                return mPosition < mEntries.Length;
-            }
-
-            public void Reset()
-            {
-                mPosition = -1;
-            }
-
-            private IEnumerator GetEnumerator()
-                => this;
+            foreach (IEntry entry in mEntries)
+                yield return entry;
         }
     }
 }

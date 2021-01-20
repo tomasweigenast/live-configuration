@@ -110,9 +110,6 @@
         <member name="M:LiveConfiguration.Core.DefaultImpl.EntryGroup.Find(System.String)">
             <inheritdoc/>
         </member>
-        <member name="M:LiveConfiguration.Core.DefaultImpl.EntryGroup.GetEnumerator">
-            <inheritdoc/>
-        </member>
         <member name="M:LiveConfiguration.Core.DefaultImpl.EntryGroup.ToDictionary">
             <inheritdoc/>
         </member>
