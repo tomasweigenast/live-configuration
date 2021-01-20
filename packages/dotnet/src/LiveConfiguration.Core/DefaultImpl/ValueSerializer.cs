@@ -185,7 +185,7 @@ namespace LiveConfiguration.Core.DefaultImpl
         {
             try
             {
-                double input = (double)value;
+                double input = Convert.ToDouble(value);
                 return TimeSpan.FromMilliseconds(input);
             }
             catch (System.Exception ex)
