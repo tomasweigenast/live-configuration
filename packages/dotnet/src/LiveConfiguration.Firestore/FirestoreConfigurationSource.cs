@@ -68,7 +68,7 @@ namespace LiveConfiguration.Firestore
                         // Get entries
                         QuerySnapshot entriesSnapshot = await document.Reference.Collection("entries").GetSnapshotAsync();
                         if (entriesSnapshot.Count > 0)
-                            groupDictionary["entries"] = entriesSnapshot.Documents.Select(x => x.ToDictionary());
+                            groupDictionary["entries"] = entriesSnapshot.Documents.Select(x => x.ToDictionary()).ToList();
 
                         groups.Add(groupDictionary);
                     }

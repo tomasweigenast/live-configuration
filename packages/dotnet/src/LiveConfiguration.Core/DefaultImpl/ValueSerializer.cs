@@ -83,8 +83,8 @@ namespace LiveConfiguration.Core.DefaultImpl
                 description = dictionary.GetValue<string>("description");
                 key = dictionary.GetValue<string>("key");
                 entryValue = dictionary.GetValue<Dictionary<string, object>>("value");
-                isEditable = dictionary.GetValue<bool>("isEditable", true);
-                isPublic = dictionary.GetValue<bool>("isPublic", true);
+                isEditable = !dictionary.ContainsKey("isEditable") || (bool)dictionary["isEditable"];
+                isPublic = !dictionary.ContainsKey("isPublic") || (bool)dictionary["isPublic"];
             }
             catch (System.Exception ex)
             {

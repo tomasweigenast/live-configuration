@@ -1,6 +1,7 @@
 ﻿using LiveConfiguration.Core.Exception;
 using LiveConfiguration.Core.Helpers;
 using LiveConfiguration.Core.Source;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
@@ -228,7 +229,7 @@ namespace LiveConfiguration.Core.DefaultImpl
 
         private IEntryGroup ParseEntryGroup(Dictionary<string, object> group)
         {
-            string name, description, id;
+            string name = null, description, id;
             List<Dictionary<string, object>> entries;
             try
             {
@@ -239,7 +240,7 @@ namespace LiveConfiguration.Core.DefaultImpl
             }
             catch (System.Exception ex)
             {
-                throw new InvalidEntryException("The entry group is malformed.", ex);
+                throw new InvalidEntryException($"The entry group is malformed. Name: {name}. Entries list type: {group["entries"]?.GetType()}", ex);
             }
 
             if (string.IsNullOrWhiteSpace(name)) throw new InvalidEntryException("The name of the group is required.");
