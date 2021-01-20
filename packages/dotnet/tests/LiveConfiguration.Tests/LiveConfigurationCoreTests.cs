@@ -3,6 +3,7 @@ using LiveConfiguration.Core.Entry;
 using LiveConfiguration.Core.Exception;
 using LiveConfiguration.Core.Source;
 using LiveConfiguration.Memory;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -213,14 +214,30 @@ namespace LiveConfiguration.Tests
             List<IEntry> entries = group.Where(x => x.Key.Contains("time", StringComparison.OrdinalIgnoreCase)).ToList();
             Assert.Equal(2, entries.Count);
         }
+
+        [Fact]
+        public void Test_subentry_to_json()
+        {
+            IEntry subEntry = EntryFactory.ForSubEntry("exampleSubEntry", "Example SubEntry To Json", new[]
+            {
+                EntryFactory.For<string>("text", "Text", "hola a todos"),
+                EntryFactory.For<int>("textLength", "Length", 27),
+            });
+
+            Example example = subEntry.Value.As<Example>();
+            Assert.NotNull(example);
+        }
     }
 
     public class Example
     {
+        [JsonProperty("text")]
         public string Text { get; set; }
 
+        [JsonProperty("textLength")]
         public int TextLength { get; set; }
 
+        [JsonProperty("values")]
         public List<string> Values { get; set; }
     }
 }

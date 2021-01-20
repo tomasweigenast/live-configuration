@@ -4,6 +4,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace LiveConfiguration.Core.DefaultImpl
@@ -30,12 +31,49 @@ namespace LiveConfiguration.Core.DefaultImpl
         {
             Type tType = typeof(T);
             ValueType tValueType = tType.GetValueType();
+            
+            // A subentry can be converted to a json representation
+            if(tValueType == ValueType.Json && mValueType == ValueType.Subentry)
+            {
+                Type rawType = mRawValue.GetType();
+                IEnumerable<IEntry> entries;
+
+                // If its already converted, set the list
+                if (mRawValue is IEnumerable<IEntry> enumerable)
+                    entries = enumerable;
+
+                // Otherwise, deserialize
+                else
+                {
+                    entries = Deserialize();
+
+                    IEnumerable<IEntry> Deserialize()
+                    {
+                        Type genericArguments = rawType.GetGenericArguments()[0];
+                        if (typeof(IEnumerable).IsAssignableFrom(rawType) && genericArguments == typeof(Dictionary<string, object>))
+                        {
+                            foreach (Dictionary<string, object> entry in (IEnumerable)mRawValue)
+                                yield return ValueSerializer.Deserialize(entry);
+                        }
+                    }
+                }
+
+                JObject obj = new JObject();
+                foreach(IEntry entry in entries)
+                    obj[entry.Key] = JToken.FromObject(entry.Value.GetRawValue());
+                    
+                return obj.ToObject<T>();
+            }
+            
+            // If its another type, throw an exception
             if (tValueType != mValueType)
                 throw new ArgumentException($"Cannot convert {mValueType} to {tValueType}.");
 
+            // Convert to a DateTime
             if (tValueType == ValueType.Timestamp && tType == typeof(DateTime))
                 return (T)Convert.ChangeType(((DateTimeOffset)mRawValue).DateTime, tType);
 
+            // If its a subentry...
             if(tValueType == ValueType.Subentry)
             {
                 Type rawType = mRawValue.GetType();
