@@ -1,12 +1,12 @@
 using LiveConfiguration.Core;
+using LiveConfiguration.Core.Base;
 using LiveConfiguration.Core.Entry;
-using LiveConfiguration.Core.Exception;
 using LiveConfiguration.Core.Source;
 using LiveConfiguration.Memory;
+using LiveConfiguration.Serializer.Protobuf;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -18,214 +18,86 @@ namespace LiveConfiguration.Tests
 
         public LiveConfigurationCoreTests()
         {
-            mLiveConfiguration = LiveConfig
-                .Create("mySettings")
-                .WithSource(new MemoryLiveConfigurationSource(new IEntryGroup[]
+            mLiveConfiguration = LiveConfigurationBuilder
+                .Create()
+                .WithSerializer(new ProtobufLiveConfigurationSerializer())
+                .WithSource(new MemoryLiveConfigurationSource(new GroupSource[]
                 {
-                    EntryFactory.Group("1", "My Settings", "my awesome settings", new IEntry[]
+                    new GroupSource
                     {
-                        EntryFactory.For<int>("indexer", "Indexer count", 5),
-                        EntryFactory.For<bool>("indexEnabled", "Index enabled", "Indicates is the index is enabled or not", true),
-                        EntryFactory.For<string>("magicString", "Magic String", "This is a magic string that can change"),
-                        EntryFactory.For<long>("longNumber", "This a really long number", long.MaxValue),
-                        EntryFactory.For<DateTime>("dateTime", "Date Time", new DateTime(2020, 01, 15)),
-                        EntryFactory.For<TimeSpan>("timeSpan", "Time", TimeSpan.FromSeconds(120542174)),
-                        EntryFactory.For<Example>("jsonExample", "This is an example json", new Example
+                        Key = "appSettings",
+                        Entries = new EntrySource[]
                         {
-                            Text = "hola a todos",
-                            TextLength = 25,
-                            Values = new List<string> { "que", "haces", "hola", "?" }
-                        }),
-                        EntryFactory.ForSubEntry("subEntry", "Subentry value", new IEntry[]
-                        {
-                            EntryFactory.For<int>("indexer", "Indexer count", 5),
-                            EntryFactory.For<bool>("indexEnabled", "Index enabled", "Indicates is the index is enabled or not", true),
-                            EntryFactory.For<string>("magicString", "Magic String", "This is a magic string that can change"),
-                            EntryFactory.For<long>("longNumber", "This a really long number", long.MaxValue),
-                        })
-                    })
+                            new EntrySource
+                            {
+                                Key = "shippingPrice",
+                                RawValue = 25.35,
+                                ValueType = EntryValueType.Double
+                            },
+                            new EntrySource
+                            {
+                                Key = "baseOrderCost",
+                                RawValue = 20,
+                                ValueType = EntryValueType.Double
+                            },
+                            new EntrySource
+                            {
+                                Key = "facebookEnabled",
+                                RawValue = true,
+                                ValueType = EntryValueType.Boolean
+                            },
+                            new EntrySource
+                            {
+                                Key = "cacheTtl",
+                                RawValue = TimeSpan.FromMinutes(15),
+                                ValueType = EntryValueType.Duration
+                            },
+                            new EntrySource
+                            {
+                                Key = "appTitle",
+                                RawValue = "My App",
+                                ValueType = EntryValueType.String
+                            },
+                            new EntrySource
+                            {
+                                Key = "example",
+                                RawValue = new Example { Text = "hi", TextLength = 2, Values = new List<string> { "123", "5546", "a124d" } },
+                                ValueType = EntryValueType.String
+                            }
+                        }
+                    }
                 }))
+                .WithOptions(new LiveConfigurationOptions
+                {
+                    CacheTtl = TimeSpan.FromMinutes(5)
+                })
                 .Build();
         }
 
         [Fact]
-        public void Test_entry_factory_for()
+        public async Task Test_get_entry()
         {
-            IEntry entry = EntryFactory.For<int>("intKey", "An integer", 57);
-            Assert.Equal("intKey", entry.Key);
-            Assert.Equal("An integer", entry.Name);
-            Assert.Null(entry.Description);
+            Exception exception = await Record.ExceptionAsync(async () => await mLiveConfiguration.GetEntryAsync("appSettings/shippingPrice"));
+            Assert.Null(exception);
         }
 
         [Fact]
-        public void Test_entry_factory_convert()
+        public async Task Test_get_non_existing_entry()
         {
-            IEntry entry = EntryFactory.For<int>("intKey", "An integer", 57);
-            int value = entry.Value.As<int>();
-            Assert.Equal(57, value);
-            Assert.Throws<ArgumentException>(() => entry.Value.As<string>());
+            Exception exception = await Record.ExceptionAsync(async () => await mLiveConfiguration.GetEntryAsync("appSettings/notFoundEntry"));
+            Assert.NotNull(exception);
         }
 
         [Fact]
-        public void Test_entry_encoding()
+        public async Task Test_parse_entry()
         {
-            IEntry entry = EntryFactory.For<int>("intKey", "An integer", 57);
-            Dictionary<string, object> dictionary = entry.ToDictionary();
-            Assert.True(dictionary.ContainsKey("value"));
+            var entry1 = await mLiveConfiguration.GetEntryAsync("appSettings/shippingPrice");
+            Exception exception1 = Record.Exception(() => entry1.Parse<float>());
+            Assert.Null(exception1);
 
-            IEntry entry2 = EntryFactory.For<Example>("example", "Example class", new Example
-            {
-                Text = "hola",
-                TextLength = 4,
-                Values = new List<string> { "first", "second", "last" }
-            });
-            Dictionary<string, object> dictionary2 = entry2.ToDictionary();
-            Assert.True(dictionary2.ContainsKey("value"));
-
-            IEntry entry3 = EntryFactory.For<DateTime>("dateTime", "A simple Date and Time", DateTime.Now.AddDays(-32));
-            Dictionary<string, object> dictionary3 = entry3.ToDictionary();
-            Assert.True(dictionary3.ContainsKey("value"));
-
-            IEntry entry4 = EntryFactory.For<DateTimeOffset>("dateTimeOffset", "A simple Date and Time with offset", DateTimeOffset.Now.Add(new TimeSpan(-25, 45, 15)));
-            Dictionary<string, object> dictionary4 = entry4.ToDictionary();
-            Assert.True(dictionary4.ContainsKey("value"));
-
-            IEntry entry5 = EntryFactory.For<TimeSpan>("timeSpan", "A simple timespan", new TimeSpan(30, -25, 45, 15));
-            Dictionary<string, object> dictionary5 = entry5.ToDictionary();
-            Assert.True(dictionary5.ContainsKey("value"));
-        }
-
-        [Fact]
-        public void Test_entry_subentry_encoding()
-        {
-            IEntry entry = EntryFactory.ForSubEntry("subEntry", "A simple subentry", new IEntry[]
-            {
-                EntryFactory.For<int>("intValue", "An integer", 25),
-                EntryFactory.For<bool>("booleanValue", "A boolean", false),
-                EntryFactory.For<Example>("jsonValue", "A simple json", new Example { Text = "que tal", TextLength = 7 }),
-            });
-
-            Dictionary<string, object> dictionary = entry.ToDictionary();
-            Assert.True(dictionary.ContainsKey("value"));
-        }
-
-        [Fact]
-        public void Test_group_encoding()
-        {
-            IEntryGroup group = EntryFactory.Group("Group name", "any description", new IEntry[]
-            {
-                EntryFactory.For<int>("intValue", "An integer", 25),
-                EntryFactory.For<bool>("booleanValue", "A boolean", false),
-                EntryFactory.For<Example>("jsonValue", "A simple json", new Example { Text = "que tal", TextLength = 7 }),
-            });
-
-            Dictionary<string, object> dictionary = group.ToDictionary();
-            Assert.True(dictionary.ContainsKey("name"));
-            Assert.True(dictionary.ContainsKey("description"));
-            Assert.True(dictionary.ContainsKey("entries"));
-        }
-
-        [Fact]
-        public void Test_group_find()
-        {
-            IEntryGroup group = EntryFactory.Group("Group name", "any description", new IEntry[]
-            {
-                EntryFactory.For<int>("intValue", "An integer", 25),
-                EntryFactory.For<bool>("booleanValue", "A boolean", false),
-                EntryFactory.For<Example>("jsonValue", "A simple json", new Example { Text = "que tal", TextLength = 7 }),
-            });
-
-            IEntry entry = group.Find("intValue");
-            IEntry entry2 = group.Find("anotherKey");
-
-            Assert.NotNull(entry);
-            Assert.Null(entry2);
-        }
-
-        [Fact]
-        public async Task Test_liveConfiguration_get()
-        {
-            IEntry entry = await mLiveConfiguration.Group("1").Entry("indexer").GetAsync();
-            IEntry entry2 = await mLiveConfiguration.Group("1").Entry("jsonExample").GetAsync();
-            IEntry entry3 = await mLiveConfiguration.Group("1").Entry("subEntry").GetAsync();
-            IEntry entry4 = await mLiveConfiguration.Group("1").Entry("dateTime").GetAsync();
-            IEntry entry5 = await mLiveConfiguration.Group("1").Entry("timeSpan").GetAsync();
-
-            Assert.NotNull(entry);
-            Assert.NotNull(entry2);
-            Assert.NotNull(entry3);
-            Assert.NotNull(entry4);
-            Assert.NotNull(entry5);
-
-            Assert.Equal(new DateTime(2020, 01, 15), entry4.Value.As<DateTime>());
-            Assert.Equal(TimeSpan.FromMilliseconds(120542174000), entry5.Value.As<TimeSpan>());
-        }
-
-        [Fact]
-        public async Task Test_liveConfiguration_update()
-        {
-            EntryReference entryReference = mLiveConfiguration.Group("1").Entry("indexer");
-            EntryReference entryReference2 = mLiveConfiguration.Group("1").Entry("jsonExample");
-            EntryReference entryReference3 = mLiveConfiguration.Group("1").Entry("subEntry").Entry("indexer");
-            EntryReference entryReference4 = mLiveConfiguration.Group("1").Entry("dateTime");
-            EntryReference entryReference5 = mLiveConfiguration.Group("1").Entry("subEntry").Entry("indexEnabled");
-
-            IEntry entry = await entryReference.GetAsync();
-            IEntry entry2 = await entryReference2.GetAsync();
-            IEntry entry3 = await entryReference3.GetAsync();
-            IEntry entry4 = await entryReference4.GetAsync();
-            IEntry entry5 = await entryReference5.GetAsync();
-
-            await mLiveConfiguration.UpdateEntryAsync(entryReference, 52);
-            await mLiveConfiguration.UpdateEntryAsync(entryReference2, new Example { Text = "nuevo texto", TextLength = 57 });
-            await mLiveConfiguration.UpdateEntryAsync(entryReference3, 22);
-            await Assert.ThrowsAsync<InvalidValueTypeException>(async () => await mLiveConfiguration.UpdateEntryAsync(entryReference5, "test"));
-            await Assert.ThrowsAsync<InvalidValueTypeException>(async () => await mLiveConfiguration.UpdateEntryAsync(entryReference4, true));
-        }
-
-        [Fact]
-        public void Test_value_as()
-        {
-            IEntry jsonEntry = EntryFactory.For("jsonValue", "A simple json", new Example { Text = "que tal", TextLength = 7 });
-            Example example = jsonEntry.Value.As<Example>();
-            Assert.NotNull(example);
-
-            IEntry jsonListEntry = EntryFactory.For("jsonValue", "A simple json", new List<Example>
-            {
-                new Example { Text = "que tal", TextLength = 7 },
-                new Example { Text = "¡Hola mundo!", TextLength = 54 },
-                new Example { Text = "¡Hola mundo!", TextLength = 54, Values = new List<string> { "string", "dos", "tres" } }
-            });
-            List<Example> listExample = jsonListEntry.Value.As<List<Example>>();
-            Assert.NotNull(listExample);
-        }
-
-        [Fact]
-        public async Task Test_getall()
-        {
-            IEnumerable<IEntryGroup> groups = await mLiveConfiguration.GetAllAsync();
-            Assert.NotNull(groups);
-        }
-
-        [Fact]
-        public async Task Test_enumerate_group()
-        {
-            IEntryGroup group = await mLiveConfiguration.GetGroupAsync(mLiveConfiguration.Group("1"));
-            List<IEntry> entries = group.Where(x => x.Key.Contains("time", StringComparison.OrdinalIgnoreCase)).ToList();
-            Assert.Equal(2, entries.Count);
-        }
-
-        [Fact]
-        public void Test_subentry_to_json()
-        {
-            IEntry subEntry = EntryFactory.ForSubEntry("exampleSubEntry", "Example SubEntry To Json", new[]
-            {
-                EntryFactory.For<string>("text", "Text", "hola a todos"),
-                EntryFactory.For<int>("textLength", "Length", 27),
-            });
-
-            Example example = subEntry.Value.As<Example>();
-            Assert.NotNull(example);
+            var entry2 = await mLiveConfiguration.GetEntryAsync("appSettings/baseOrderCost");
+            Exception exception2 = Record.Exception(() => entry2.Parse<bool>());
+            Assert.NotNull(exception2);
         }
     }
 

@@ -3,7 +3,7 @@
 namespace LiveConfiguration.Firestore
 {
     /// <summary>
-    /// Options to configure an <see cref="FirestoreConfigurationSource"/> instance.
+    /// Options to configure an <see cref="FirestoreLiveConfigurationSource"/> instance.
     /// </summary>
     public class FirestoreSourceOptions
     {
@@ -23,8 +23,17 @@ namespace LiveConfiguration.Firestore
         public string CollectionName { get; set; }
 
         /// <summary>
-        /// The endpoint Firestore should use. Leave null to use the default.
+        /// The serializer used to serialize/deserialize entries
         /// </summary>
-        public string Endpoint { get; set; }
+        public Serializer Serializer { get; set; }
+    }
+
+    /// <summary>
+    /// Represents a serializer used to serialize/deserialize entries to/from Firestore
+    /// </summary>
+    public enum Serializer
+    {
+        Json,
+        MessagePack
     }
 }
