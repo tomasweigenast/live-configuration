@@ -1,0 +1,23 @@
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace LiveConfiguration.Core.Source
+{
+    /// <summary>
+    /// Represents the source of the configuration entries
+    /// </summary>
+    public interface ILiveConfigurationSource
+    {
+        /// <summary>
+        /// Writes one or more entries to the provider
+        /// </summary>
+        /// <param name="entries">The entries to write. The key of the value pair represents the path to write the entry to, and the value the entry to write.</param>
+        Task WriteAsync(IEnumerable<KeyValuePair<string, EntrySource>> entries);
+
+        /// <summary>
+        /// Reads an entry from the specified path
+        /// </summary>
+        /// <param name="path">The path to the entry to read.</param>
+        Task<EntryMetadata> ReadAsync(string path);
+    }
+}
