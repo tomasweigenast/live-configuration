@@ -1,6 +1,4 @@
-﻿using LiveConfiguration.Core;
-using LiveConfiguration.Core.Source;
-using System;
+﻿using LiveConfiguration.Core.Source;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,122 +13,60 @@ namespace LiveConfiguration.Memory
     {
         #region Construction
 
-        private readonly ConcurrentDictionary<string, Dictionary<string, object>> mEntries;
+        private readonly ConcurrentDictionary<string, GroupSource> mGroups;
 
         /// <summary>
         /// Default constructor
         /// </summary>
         public MemoryLiveConfigurationSource()
         {
-            mEntries = new ConcurrentDictionary<string, Dictionary<string, object>>();
+            mGroups = new ConcurrentDictionary<string, GroupSource>();
         }
 
         /// <summary>
         /// Constructor that populate default items. Useful for testing purposes
         /// </summary>
         /// <param name="initialItems">The initial groups to set.</param>
-        public MemoryLiveConfigurationSource(IEnumerable<IEntryGroup> initialItems) : this()
+        public MemoryLiveConfigurationSource(IEnumerable<GroupSource> initialItems) : this()
         {
-            foreach(IEntryGroup entry in initialItems)
-                mEntries[entry.Id] = entry.ToDictionary();
+            foreach (GroupSource entry in initialItems)
+                mGroups[entry.Key] = entry;
         }
 
         #endregion
 
         #region Methods
 
-        /// <inheritdoc/>
-        public Task<Dictionary<string, object>> ReadAsync(ConfigurationReference reference)
+        public Task WriteAsync(IEnumerable<KeyValuePair<string, EntrySource>> entries)
         {
-            // Parse and get path
-            ReferencePath[] path = reference.Path
-                .Split('/', StringSplitOptions.RemoveEmptyEntries)
-                .Select(x => x.Split('=', StringSplitOptions.RemoveEmptyEntries))
-                .Select(x => new ReferencePath
-                {
-                    Key = x[1],
-                    IsGroup = x[0] == "group"
-                })
-                .ToArray();
-
-            // Get group
-            Dictionary<string, object> group = mEntries[path.First().Key];
-
-            if (group == null)
-                return null;
-
-            if (path.Length == 1)
-                return Task.FromResult(group);
-
-            // Get last path
-            ReferencePath lastPath = path[^1];
-            Dictionary<string, object> entry = group
-                .Where(x => x.Key == "entries")
-                .Select(x => x.Value as List<Dictionary<string, object>>)
-                .Where(x => x.Any(b => (b["key"] as string) == lastPath.Key))
-                .FirstOrDefault()
-                .Select(x => x)
-                .Where(x => x["key"] as string == lastPath.Key)
-                .FirstOrDefault();
-
-            if (entry != null)
-                return Task.FromResult(entry);
-            else
-                return Task.FromResult<Dictionary<string, object>>(null);
-
-        }
-
-        /// <inheritdoc/>
-        public Task WriteAsync(ConfigurationReference reference, Dictionary<string, object> entry)
-        {
-            if (reference is GroupReference)
-                WriteGroup(entry);
-            else
-                WriteEntry(entry);
-
-            return Task.CompletedTask;
-        }
-
-        /// <inheritdoc/>
-        public Task WriteAsync(IEnumerable<KeyValuePair<Dictionary<string, object>, ConfigurationReference>> entries)
-        {
-            foreach(KeyValuePair<Dictionary<string, object>, ConfigurationReference> entry in entries)
+            foreach(var entry in entries)
             {
-                if (entry.Value is GroupReference)
-                    WriteGroup(entry.Key);
-                else
-                    WriteEntry(entry.Key);
+                string[] path = entry.Key.Split('/');
+                GroupSource group = mGroups[path[0]];
+                if(group != null)
+                {
+                    var groupEntries = group.Entries.ToList();
+                    groupEntries.RemoveAll(x => x.Key == path[1]);
+                    groupEntries.Add(entry.Value);
+
+                    group.Entries = groupEntries;
+                }
             }
 
             return Task.CompletedTask;
         }
 
-        #endregion
-
-        #region Helpers
-
-        private void WriteGroup(Dictionary<string, object> dictionary)
+        public Task<EntryMetadata> ReadAsync(string path)
         {
-            string name = dictionary["name"] as string;
-            string description = dictionary["description"] as string;
-            List<Dictionary<string, object>> entries = dictionary["entries"] as List<Dictionary<string, object>>;
-            dictionary["isGroup"] = true;
-
-            mEntries[name] = dictionary;
-        }
-
-        private void WriteEntry(Dictionary<string, object> dictionary)
-        {
-            string key = dictionary["key"] as string;
-            dictionary["isGroup"] = false;
-            mEntries[key] = dictionary;
-        }
-
-        private class ReferencePath
-        {
-            public bool IsGroup { get; set; }
-
-            public string Key { get; set; }
+            string[] pathParts = path.Split('/');
+            bool isGroup = pathParts.Length % 2 != 0;
+            if (isGroup)
+                return Task.FromResult((EntryMetadata)mGroups[pathParts[0]]);
+            else
+            {
+                var group = mGroups[pathParts[0]];
+                return Task.FromResult((EntryMetadata)group.Entries.FirstOrDefault(x => x.Key == pathParts[1]));
+            }
         }
 
         #endregion

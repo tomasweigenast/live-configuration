@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>
@@ -21,8 +21,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\LiveConfiguration.Core\LiveConfiguration.Core.csproj" />
-    <ProjectReference Include="..\..\src\LiveConfiguration.Firestore\LiveConfiguration.Firestore.csproj" />
-    <ProjectReference Include="..\..\src\LiveConfiguration.Memory\LiveConfiguration.Memory.csproj" />
+    <ProjectReference Include="..\..\src\LiveConfiguration.Firestore\LiveConfiguration.Provider.Firestore.csproj" />
+    <ProjectReference Include="..\..\src\LiveConfiguration.Memory\LiveConfiguration.Provider.Memory.csproj" />
+    <ProjectReference Include="..\..\src\LiveConfiguration.Serializer.Protobuf\LiveConfiguration.Serializer.Protobuf.csproj" />
   </ItemGroup>
 
 </Project>
