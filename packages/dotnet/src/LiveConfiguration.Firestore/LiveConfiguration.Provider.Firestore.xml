@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>LiveConfiguration.Provider.Firestore</name>
+    </assembly>
+    <members>
+        <member name="T:LiveConfiguration.Firestore.FirestoreLiveConfigurationSource">
+            <summary>
+            Implementation of <see cref="T:LiveConfiguration.Core.Source.ILiveConfigurationSource"/> which uses Firestore as backend of the entries
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Firestore.FirestoreLiveConfigurationSource.#ctor(LiveConfiguration.Firestore.FirestoreSourceOptions)">
+            <summary>
+            Default constructor with initialization options
+            </summary>
+            <param name="options">The options to use.</param>
+        </member>
+        <member name="M:LiveConfiguration.Firestore.FirestoreLiveConfigurationSource.ReadAsync(System.String)">
+            <inheritdoc/>
+        </member>
+        <member name="M:LiveConfiguration.Firestore.FirestoreLiveConfigurationSource.WriteAsync(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,LiveConfiguration.Core.Source.EntrySource}})">
+            <inheritdoc/>
+        </member>
+        <member name="T:LiveConfiguration.Firestore.FirestoreSourceOptions">
+            <summary>
+            Options to configure an <see cref="T:LiveConfiguration.Firestore.FirestoreLiveConfigurationSource"/> instance.
+            </summary>
+        </member>
+        <member name="P:LiveConfiguration.Firestore.FirestoreSourceOptions.Credentials">
+            <summary>
+            The credentials to authenticate in Firestore
+            </summary>
+        </member>
+        <member name="P:LiveConfiguration.Firestore.FirestoreSourceOptions.ProjectId">
+            <summary>
+            The project id to use
+            </summary>
+        </member>
+        <member name="P:LiveConfiguration.Firestore.FirestoreSourceOptions.CollectionName">
+            <summary>
+            The name of the collection where the entries will be saved
+            </summary>
+        </member>
+        <member name="P:LiveConfiguration.Firestore.FirestoreSourceOptions.Serializer">
+            <summary>
+            The serializer used to serialize/deserialize entries
+            </summary>
+        </member>
+        <member name="T:LiveConfiguration.Firestore.Serializer">
+            <summary>
+            Represents a serializer used to serialize/deserialize entries to/from Firestore
+            </summary>
+        </member>
+    </members>
+</doc>

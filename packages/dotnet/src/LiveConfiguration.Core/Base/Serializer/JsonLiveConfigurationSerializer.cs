@@ -42,9 +42,8 @@ namespace LiveConfiguration.Core.Serializer
             MemoryStream output = new();
             using (BinaryWriter writer = new(output, encoding: Encoding.UTF8, leaveOpen: true))
             {
-                writer.Write(ILiveConfigurationSerializer.ContractNameSpecialDelimiter);
                 writer.Write(contractName);
-                writer.Write(ILiveConfigurationSerializer.ContractNameSpecialDelimiter);
+                writer.Write(ILiveConfigurationSerializer.ContractNameMagicBytes);
 
                 // Write json normally
                 byte[] jsonAsArray = Encoding.UTF8.GetBytes(json);

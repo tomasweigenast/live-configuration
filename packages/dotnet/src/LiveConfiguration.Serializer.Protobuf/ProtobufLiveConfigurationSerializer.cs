@@ -46,9 +46,8 @@ namespace LiveConfiguration.Serializer.Protobuf
             MemoryStream output = new();
             using (BinaryWriter writer = new(output, encoding: Encoding.UTF8, leaveOpen: true))
             {
-                writer.Write(ILiveConfigurationSerializer.ContractNameSpecialDelimiter);
                 writer.Write(contractName);
-                writer.Write(ILiveConfigurationSerializer.ContractNameSpecialDelimiter);
+                writer.Write(ILiveConfigurationSerializer.ContractNameMagicBytes);
 
                 // Write protobuf
                 byte[] protobufSerialized = entries.ToByteArray();

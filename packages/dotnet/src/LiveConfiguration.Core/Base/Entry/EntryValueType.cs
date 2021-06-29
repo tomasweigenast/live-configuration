@@ -5,13 +5,13 @@
     /// </summary>
     public enum EntryValueType
     {
-        String,
-        Int,
-        Double,
-        Boolean,
-        Map,
-        List,
-        Date,
-        Duration,
+        String = 0,
+        Int = 1,
+        Double = 2,
+        Boolean = 3,
+        List = 4,
+        Map = 5,
+        Date = 6,
+        Duration = 7,
     }
 }
