@@ -10,6 +10,11 @@
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>D:\Tomas\Git\live-configuration\packages\dotnet\src\LiveConfiguration.Serializer.Protobuf\LiveConfiguration.Serializer.Protobuf.xml</DocumentationFile>
+    <OutputPath>D:\Tomas\Git\live-configuration\packages\dotnet\release\LiveConfiguration.Serializer.Protobuf</OutputPath>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Include="..\..\..\..\LICENSE">
       <Pack>True</Pack>

@@ -10,7 +10,7 @@ namespace LiveConfiguration.Core.Serializer
     /// </summary>
     public interface ILiveConfigurationSerializer
     {
-        public static readonly byte[] ContractNameSpecialDelimiter = BitConverter.GetBytes(0x987987);
+        public static readonly byte[] ContractNameMagicBytes = new byte[] { 0x15, 0x98, 0x33, 0x47 };
         
         /// <summary>
         /// The name of the contract so clients know which serializer to use
