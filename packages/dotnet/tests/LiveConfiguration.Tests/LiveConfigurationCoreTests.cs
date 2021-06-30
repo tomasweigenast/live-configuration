@@ -62,7 +62,7 @@ namespace LiveConfiguration.Tests
                             {
                                 Key = "example",
                                 RawValue = new Example { Text = "hi", TextLength = 2, Values = new List<string> { "123", "5546", "a124d" } },
-                                ValueType = EntryValueType.String
+                                ValueType = EntryValueType.Map
                             }
                         }
                     }
@@ -98,6 +98,14 @@ namespace LiveConfiguration.Tests
             var entry2 = await mLiveConfiguration.GetEntryAsync("appSettings/baseOrderCost");
             Exception exception2 = Record.Exception(() => entry2.Parse<bool>());
             Assert.NotNull(exception2);
+        }
+
+        [Fact]
+        public async Task Test_parse_entry_to_type()
+        {
+            var entry1 = await mLiveConfiguration.GetEntryAsync("appSettings/example");
+            Exception exception1 = Record.Exception(() => entry1.Parse<Example>());
+            Assert.Null(exception1);
         }
     }
 

@@ -15,15 +15,17 @@ class ConfigurationBuffer {
 
   factory ConfigurationBuffer.from(Uint8List buffer) {
     var serializedTypeCode = <int>[];
-    
+
     // Get delimiter type code
     var foundMagicNumbers = <int>[];
     int? lastFoundPosition;
-    for(var i = 0; i < buffer.length; i++) {
+    for (var i = 0; i < buffer.length; i++) {
       var bufferNumber = buffer[i];
 
       // Add found magic number only if the last stored position matches the previous one to the current
-      if(BaseConfigurationDeserializer.contractNameMagicBytes.contains(bufferNumber) && (lastFoundPosition == null || lastFoundPosition == i-1)) {
+      if (BaseConfigurationDeserializer.contractNameMagicBytes
+              .contains(bufferNumber) &&
+          (lastFoundPosition == null || lastFoundPosition == i - 1)) {
         foundMagicNumbers.add(bufferNumber);
         lastFoundPosition = i;
       } else {
@@ -32,7 +34,8 @@ class ConfigurationBuffer {
       }
 
       // Break because we found all the magic numbers
-      if(foundMagicNumbers.length == BaseConfigurationDeserializer.contractNameMagicBytes.length) {
+      if (foundMagicNumbers.length ==
+          BaseConfigurationDeserializer.contractNameMagicBytes.length) {
         break;
       }
     }
@@ -41,9 +44,11 @@ class ConfigurationBuffer {
     var typeCode = utf8.decode(Uint8List.fromList(serializedTypeCode));
 
     // Skip bytes and build real buffer
-    buffer = Uint8List.fromList(buffer.skip(serializedTypeCode.length + BaseConfigurationDeserializer.contractNameMagicBytes.length).toList());
+    buffer = Uint8List.fromList(buffer
+        .skip(serializedTypeCode.length +
+            BaseConfigurationDeserializer.contractNameMagicBytes.length)
+        .toList());
 
     return ConfigurationBuffer._(Uint8List.fromList(buffer), typeCode);
   }
-
 }
