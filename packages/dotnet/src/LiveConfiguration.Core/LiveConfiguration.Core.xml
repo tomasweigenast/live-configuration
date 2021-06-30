@@ -97,6 +97,11 @@
             </summary>
             <param name="path">The path to the configuration group.</param>
         </member>
+        <member name="M:LiveConfiguration.Core.ILiveConfiguration.GetAllAsync">
+            <summary>
+            Gets all the configuration groups
+            </summary>
+        </member>
         <member name="T:LiveConfiguration.Core.Base.LiveConfigurationBuilder">
             <summary>
             Provides methods to build a <see cref="T:LiveConfiguration.Core.ILiveConfiguration"/>
@@ -242,9 +247,10 @@
         </member>
         <member name="M:LiveConfiguration.Core.Source.ILiveConfigurationSource.ReadAsync(System.String)">
             <summary>
-            Reads an entry from the specified path
+            Reads entries from the specified path.
             </summary>
             <param name="path">The path to the entry to read.</param>
+            <returns>The list of entries that matches the path.</returns>
         </member>
         <member name="T:LiveConfiguration.Core.Exception.EntryNotFoundException">
             <summary>
@@ -377,6 +383,14 @@
             <summary>
             The options to configure the <see cref="T:LiveConfiguration.Core.ILiveConfiguration"/>
             </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.Extensions.LiveConfigurationExtensions.GetValueAsync``1(LiveConfiguration.Core.ILiveConfiguration,System.String)">
+            <summary>
+            Gets a configuration entry and parses its value to a generic type
+            </summary>
+            <typeparam name="T">The type to convert the value to.</typeparam>
+            <param name="configuration">The <see cref="T:LiveConfiguration.Core.ILiveConfiguration"/> instance.</param>
+            <param name="path">The path to get.</param>
         </member>
     </members>
 </doc>

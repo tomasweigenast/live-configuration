@@ -15,9 +15,10 @@ namespace LiveConfiguration.Core.Source
         Task WriteAsync(IEnumerable<KeyValuePair<string, EntrySource>> entries);
 
         /// <summary>
-        /// Reads an entry from the specified path
+        /// Reads entries from the specified path.
         /// </summary>
         /// <param name="path">The path to the entry to read.</param>
-        Task<EntryMetadata> ReadAsync(string path);
+        /// <returns>The list of entries that matches the path.</returns>
+        Task<IEnumerable<EntryMetadata>> ReadAsync(string path);
     }
 }

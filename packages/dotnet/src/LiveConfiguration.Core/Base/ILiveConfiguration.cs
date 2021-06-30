@@ -1,4 +1,5 @@
 ﻿using LiveConfiguration.Core.Serializer;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace LiveConfiguration.Core
@@ -24,5 +25,10 @@ namespace LiveConfiguration.Core
         /// </summary>
         /// <param name="path">The path to the configuration group.</param>
         public Task<IConfigurationGroup> GetGroupAsync(string path);
+
+        /// <summary>
+        /// Gets all the configuration groups
+        /// </summary>
+        public Task<IEnumerable<IConfigurationGroup>> GetAllAsync();
     }
 }

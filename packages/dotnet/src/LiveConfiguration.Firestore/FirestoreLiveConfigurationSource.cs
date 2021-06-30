@@ -47,21 +47,49 @@ namespace LiveConfiguration.Firestore
         #region Methods
 
         /// <inheritdoc/>
-        public async Task<EntryMetadata> ReadAsync(string path)
+        public async Task<IEnumerable<EntryMetadata>> ReadAsync(string path)
         {
             string[] pathParts = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
             bool isGroup = pathParts.Length % 2 != 0;
 
             CollectionReference query = mFirestore.Collection(mOptions.CollectionName);
-            if (isGroup)
+            
+            // Get all
+            if(pathParts.Length == 2 && pathParts.All(x => x == "*"))
             {
-                var groupQuery = query.Document(pathParts[0]);
-                return await DeserializeGroup(await groupQuery.GetSnapshotAsync(), await groupQuery.Collection("entries").GetSnapshotAsync());
+                // Get all the groups
+                QuerySnapshot groupsSnapshot = await query.GetSnapshotAsync();
+                if (groupsSnapshot.Count == 0)
+                    return null;
+
+                EntryMetadata[] entries = new EntryMetadata[groupsSnapshot.Count];
+                for(int i = 0; i < groupsSnapshot.Count; i++)
+                {
+                    // Get every entry from the group
+                    DocumentSnapshot groupSnapshot = groupsSnapshot.Documents[i];
+                    QuerySnapshot entriesSnapshot = await groupSnapshot.Reference.Collection("entries").GetSnapshotAsync();
+
+                    // Decode group
+                    GroupSource source = await DeserializeGroup(groupSnapshot, entriesSnapshot);
+                    entries[i] = source;
+                }
+
+                return entries;
             }
             else
             {
-                var documentSnapshot = await query.Document(pathParts[0]).Collection("entries").Document(pathParts[1]).GetSnapshotAsync();
-                return await DeserializeEntry(documentSnapshot);
+                if (isGroup)
+                {
+                    var groupQuery = query.Document(pathParts[0]);
+                    GroupSource source = await DeserializeGroup(await groupQuery.GetSnapshotAsync(), await groupQuery.Collection("entries").GetSnapshotAsync());
+                    return new EntryMetadata[] { source };
+                }
+                else
+                {
+                    var documentSnapshot = await query.Document(pathParts[0]).Collection("entries").Document(pathParts[1]).GetSnapshotAsync();
+                    EntrySource source = await DeserializeEntry(documentSnapshot);
+                    return new EntryMetadata[] { source };
+                }
             }
         }
 
