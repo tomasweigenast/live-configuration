@@ -1,5 +1,7 @@
-﻿using Google.Cloud.Firestore;
+﻿using Google.Api.Gax;
+using Google.Cloud.Firestore;
 using Google.Protobuf;
+using Grpc.Core;
 using LiveConfiguration.Core.Entry;
 using LiveConfiguration.Core.Exception;
 using LiveConfiguration.Core.Source;
@@ -36,9 +38,9 @@ namespace LiveConfiguration.Firestore
 
             mFirestore = new FirestoreDbBuilder
             {
-                ChannelCredentials = mOptions.Credentials,
+                ChannelCredentials = mOptions.EmulatorDetection == EmulatorDetection.EmulatorOnly ? ChannelCredentials.Insecure : mOptions.Credentials,
                 ProjectId = mOptions.ProjectId,
-                EmulatorDetection = Google.Api.Gax.EmulatorDetection.EmulatorOrProduction,
+                EmulatorDetection = mOptions.EmulatorDetection,
             }.Build();
         }
 
