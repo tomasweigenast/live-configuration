@@ -1,12 +1,16 @@
 using LiveConfiguration.Core;
 using LiveConfiguration.Core.Base;
 using LiveConfiguration.Core.Entry;
+using LiveConfiguration.Core.Helpers;
 using LiveConfiguration.Core.Source;
 using LiveConfiguration.Memory;
 using LiveConfiguration.Serializer.Protobuf;
+using MessagePack;
+using MessagePack.Resolvers;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -62,7 +66,7 @@ namespace LiveConfiguration.Tests
                             {
                                 Key = "example",
                                 RawValue = new Example { Text = "hi", TextLength = 2, Values = new List<string> { "123", "5546", "a124d" } },
-                                ValueType = EntryValueType.String
+                                ValueType = EntryValueType.Map
                             }
                         }
                     }
@@ -98,6 +102,37 @@ namespace LiveConfiguration.Tests
             var entry2 = await mLiveConfiguration.GetEntryAsync("appSettings/baseOrderCost");
             Exception exception2 = Record.Exception(() => entry2.Parse<bool>());
             Assert.NotNull(exception2);
+        }
+
+        [Fact]
+        public async Task Test_parse_entry_to_type()
+        {
+            var entry1 = await mLiveConfiguration.GetEntryAsync("appSettings/example");
+            Exception exception1 = Record.Exception(() => entry1.Parse<Example>());
+            Assert.Null(exception1);
+        }
+
+        [Fact]
+        public async Task Test_messagepack_serializer()
+        {
+            var entry = await mLiveConfiguration.GetEntryAsync("appSettings/example");
+            Dictionary<string, object> fields = new()
+            {
+                { nameof(EntryMetadata.Key), entry.Key },
+                { nameof(EntryMetadata.Name), entry.Name },
+                { nameof(EntryMetadata.Description), entry.Description },
+                { nameof(EntryMetadata.Metadata), entry.Metadata },
+                { nameof(EntrySource.ValueType), entry.ValueType },
+                { nameof(EntrySource.RawValue), entry.RawValue },
+            };
+
+            // Serialize
+            MemoryStream output = new();
+            await MessagePackSerializer.SerializeAsync(output, fields, ContractlessStandardResolver.Options);
+
+            output.Position = 0;
+            var result = await MessagePackSerializer.DeserializeAsync<Dictionary<string, object>>(output, ContractlessStandardResolver.Options);
+            TypeConverter.ConvertTo<Example>(result[nameof(EntrySource.RawValue)], EntryValueType.Map);
         }
     }
 

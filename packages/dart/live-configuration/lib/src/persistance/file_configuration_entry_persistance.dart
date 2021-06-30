@@ -5,8 +5,8 @@ import 'package:live_configuration/src/models/configuration/config_entry.dart';
 import 'package:live_configuration/src/persistance/base_configuration_entry_persistance.dart';
 
 /// Persists all the configuration entries to a file
-class FileConfigurationEntryPersistance extends BaseConfigurationEntryPersistance {
-
+class FileConfigurationEntryPersistance
+    extends BaseConfigurationEntryPersistance {
   late File file;
 
   FileConfigurationEntryPersistance(String path) {
@@ -16,7 +16,7 @@ class FileConfigurationEntryPersistance extends BaseConfigurationEntryPersistanc
   @override
   Future<Iterable<ConfigEntry>?> getAll() async {
     // Read file
-    if(!await file.exists()) {
+    if (!await file.exists()) {
       return null;
     }
 
@@ -25,7 +25,7 @@ class FileConfigurationEntryPersistance extends BaseConfigurationEntryPersistanc
 
       // Decode using protobuf
       return ProtobufEncoding.decode(buffer);
-    } catch(_) {
+    } catch (_) {
       return null;
     }
   }
@@ -35,11 +35,10 @@ class FileConfigurationEntryPersistance extends BaseConfigurationEntryPersistanc
     // Encoding using Protobuf
     var buffer = ProtobufEncoding.encode(entries);
 
-    if(!await file.exists()) {
+    if (!await file.exists()) {
       await file.create(recursive: true);
     }
 
     await file.writeAsBytes(buffer);
   }
-
 }

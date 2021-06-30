@@ -13,7 +13,7 @@ class KeyValueStore {
   }
 
   Future load() async {
-    if(!await _file.exists()) {
+    if (!await _file.exists()) {
       await _file.create(recursive: true);
     }
 
@@ -21,8 +21,7 @@ class KeyValueStore {
       var jsonEncoded = await _file.readAsString();
       dynamic pairs = (json.decode(jsonEncoded) as Map).cast<String, Object>();
       _cache.addAll(pairs);
-
-    } catch(_) { }
+    } catch (_) {}
   }
 
   Future save(String key, Object value) async {
@@ -36,7 +35,7 @@ class KeyValueStore {
 
   Future _saveToFile() async {
     var jsonEncoded = json.encode(_cache);
-    if(!await _file.exists()) {
+    if (!await _file.exists()) {
       await _file.create(recursive: true);
     }
 

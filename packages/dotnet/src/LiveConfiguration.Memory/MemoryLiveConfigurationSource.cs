@@ -37,6 +37,7 @@ namespace LiveConfiguration.Memory
 
         #region Methods
 
+        ///<inheritdoc/>
         public Task WriteAsync(IEnumerable<KeyValuePair<string, EntrySource>> entries)
         {
             foreach(var entry in entries)
@@ -56,16 +57,17 @@ namespace LiveConfiguration.Memory
             return Task.CompletedTask;
         }
 
-        public Task<EntryMetadata> ReadAsync(string path)
+        ///<inheritdoc/>
+        public Task<IEnumerable<EntryMetadata>> ReadAsync(string path)
         {
             string[] pathParts = path.Split('/');
             bool isGroup = pathParts.Length % 2 != 0;
             if (isGroup)
-                return Task.FromResult((EntryMetadata)mGroups[pathParts[0]]);
+                return Task.FromResult(new EntryMetadata[] { mGroups[pathParts[0]] }.AsEnumerable());
             else
             {
                 var group = mGroups[pathParts[0]];
-                return Task.FromResult((EntryMetadata)group.Entries.FirstOrDefault(x => x.Key == pathParts[1]));
+                return Task.FromResult(new EntryMetadata[] { group.Entries.FirstOrDefault(x => x.Key == pathParts[1]) }.AsEnumerable());
             }
         }
 

@@ -3,6 +3,7 @@ using LiveConfiguration.Core.Serializer;
 using LiveConfiguration.Core.Source;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -35,6 +36,33 @@ namespace LiveConfiguration.Core.Impl
 
         public ILiveConfigurationSerializer Serializer => mSerializer;
 
+        public async Task<IEnumerable<IConfigurationGroup>> GetAllAsync()
+        {
+            if (mOptions.CacheTtl != TimeSpan.Zero && mCacheExpiration > DateTimeOffset.UtcNow)
+                return mCache.Values;
+
+            IEnumerable<EntryMetadata> entries = await mSource.ReadAsync("*/*");
+            if (entries== null)
+                throw new EntryNotFoundException("*/*");
+
+            mCacheExpiration = DateTimeOffset.UtcNow.Add(mOptions.CacheTtl);
+            return entries.Select(entry => new ConfigurationGroupImpl
+            {
+                Key = entry.Key,
+                Name = entry.Name,
+                Description = entry.Description,
+                Entries = (entry as GroupSource).Entries.Select(x => new ConfigurationEntryImpl
+                {
+                    Key = x.Key,
+                    Name = x.Name,
+                    Description = x.Description,
+                    RawValue = x.RawValue,
+                    ValueType = x.ValueType,
+                    Metadata = x.Metadata
+                })
+            });
+        }
+
         public async Task<IConfigurationEntry> GetEntryAsync(string path)
         {
             string[] pathParts = path.Split('/');
@@ -46,10 +74,11 @@ namespace LiveConfiguration.Core.Impl
                     return entry;
             }
 
-            EntryMetadata metadata = await mSource.ReadAsync(path);
-            if (metadata == null)
+            IEnumerable<EntryMetadata> entries = await mSource.ReadAsync(path);
+            if (entries == null || !entries.Any())
                 throw new EntryNotFoundException(path);
 
+            EntryMetadata metadata = entries.First();
             if (metadata is not EntrySource)
                 throw new InvalidEntryException($"The entry located at '{path}' is a group, not an entry.");
 
@@ -74,10 +103,11 @@ namespace LiveConfiguration.Core.Impl
             if (cacheGroup != null)
                 return cacheGroup;
 
-            EntryMetadata metadata = await mSource.ReadAsync(path);
-            if (metadata == null)
+            IEnumerable<EntryMetadata> entries = await mSource.ReadAsync(path);
+            if (entries == null || !entries.Any())
                 throw new EntryNotFoundException(path);
 
+            EntryMetadata metadata = entries.First();
             if (metadata is not GroupSource)
                 throw new InvalidEntryException($"The entry located at '{path}' is a group, not an entry.");
 

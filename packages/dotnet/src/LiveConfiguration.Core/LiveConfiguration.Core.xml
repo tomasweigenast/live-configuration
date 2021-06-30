@@ -4,6 +4,95 @@
         <name>LiveConfiguration.Core</name>
     </assembly>
     <members>
+        <member name="T:LiveConfiguration.Core.ConfigurationEntryFactory">
+            <summary>
+            Provides methods to build <see cref="T:LiveConfiguration.Core.IConfigurationEntry"/>s from scratch 
+            </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.ConfigurationEntryFactory.ForBoolean(System.String,System.Boolean)">
+            <summary>
+            Builds a <see cref="T:LiveConfiguration.Core.IConfigurationEntry"/> which holds a boolean value.
+            </summary>
+            <param name="key">The key of the entry.</param>
+            <param name="value">The value to set.</param>
+        </member>
+        <member name="M:LiveConfiguration.Core.ConfigurationEntryFactory.ForInt(System.String,System.Int32)">
+            <summary>
+            Builds a <see cref="T:LiveConfiguration.Core.IConfigurationEntry"/> which holds a int value.
+            </summary>
+            <param name="key">The key of the entry.</param>
+            <param name="value">The value to set.</param>
+        </member>
+        <member name="M:LiveConfiguration.Core.ConfigurationEntryFactory.ForInt(System.String,System.Int64)">
+            <summary>
+            Builds a <see cref="T:LiveConfiguration.Core.IConfigurationEntry"/> which holds a int value.
+            </summary>
+            <param name="key">The key of the entry.</param>
+            <param name="value">The value to set.</param>
+        </member>
+        <member name="M:LiveConfiguration.Core.ConfigurationEntryFactory.ForDouble(System.String,System.Double)">
+            <summary>
+            Builds a <see cref="T:LiveConfiguration.Core.IConfigurationEntry"/> which holds a double value.
+            </summary>
+            <param name="key">The key of the entry.</param>
+            <param name="value">The value to set.</param>
+        </member>
+        <member name="M:LiveConfiguration.Core.ConfigurationEntryFactory.ForDouble(System.String,System.Single)">
+            <summary>
+            Builds a <see cref="T:LiveConfiguration.Core.IConfigurationEntry"/> which holds a double value.
+            </summary>
+            <param name="key">The key of the entry.</param>
+            <param name="value">The value to set.</param>
+        </member>
+        <member name="M:LiveConfiguration.Core.ConfigurationEntryFactory.ForString(System.String,System.String)">
+            <summary>
+            Builds a <see cref="T:LiveConfiguration.Core.IConfigurationEntry"/> which holds a string value.
+            </summary>
+            <param name="key">The key of the entry.</param>
+            <param name="value">The value to set.</param>
+        </member>
+        <member name="M:LiveConfiguration.Core.ConfigurationEntryFactory.ForDateTime(System.String,System.DateTime)">
+            <summary>
+            Builds a <see cref="T:LiveConfiguration.Core.IConfigurationEntry"/> which holds a datetime value.
+            </summary>
+            <param name="key">The key of the entry.</param>
+            <param name="value">The value to set.</param>
+        </member>
+        <member name="M:LiveConfiguration.Core.ConfigurationEntryFactory.ForDateTime(System.String,System.DateTimeOffset)">
+            <summary>
+            Builds a <see cref="T:LiveConfiguration.Core.IConfigurationEntry"/> which holds a datetime value.
+            </summary>
+            <param name="key">The key of the entry.</param>
+            <param name="value">The value to set.</param>
+        </member>
+        <member name="M:LiveConfiguration.Core.ConfigurationEntryFactory.ForTimeSpan(System.String,System.TimeSpan)">
+            <summary>
+            Builds a <see cref="T:LiveConfiguration.Core.IConfigurationEntry"/> which holds a timespan value.
+            </summary>
+            <param name="key">The key of the entry.</param>
+            <param name="value">The value to set.</param>
+        </member>
+        <member name="M:LiveConfiguration.Core.ConfigurationEntryFactory.ForList``1(System.String,System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Builds a <see cref="T:LiveConfiguration.Core.IConfigurationEntry"/> which holds a List value.
+            </summary>
+            <param name="key">The key of the entry.</param>
+            <param name="value">The value to set.</param>
+        </member>
+        <member name="M:LiveConfiguration.Core.ConfigurationEntryFactory.ForMap(System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.Object}})">
+            <summary>
+            Builds a <see cref="T:LiveConfiguration.Core.IConfigurationEntry"/> which holds a Map value.
+            </summary>
+            <param name="key">The key of the entry.</param>
+            <param name="value">The value to set.</param>
+        </member>
+        <member name="M:LiveConfiguration.Core.ConfigurationEntryFactory.For``1(System.String,``0)">
+            <summary>
+            Builds a <see cref="T:LiveConfiguration.Core.IConfigurationEntry"/> which holds a custom type value.
+            </summary>
+            <param name="key">The key of the entry.</param>
+            <param name="value">The value to set.</param>
+        </member>
         <member name="T:LiveConfiguration.Core.Entry.EntryValueType">
             <summary>
             Represents the value type of a <see cref="T:LiveConfiguration.Core.IConfigurationEntry"/>
@@ -96,6 +185,11 @@
             Gets a configuration group
             </summary>
             <param name="path">The path to the configuration group.</param>
+        </member>
+        <member name="M:LiveConfiguration.Core.ILiveConfiguration.GetAllAsync">
+            <summary>
+            Gets all the configuration groups
+            </summary>
         </member>
         <member name="T:LiveConfiguration.Core.Base.LiveConfigurationBuilder">
             <summary>
@@ -242,9 +336,10 @@
         </member>
         <member name="M:LiveConfiguration.Core.Source.ILiveConfigurationSource.ReadAsync(System.String)">
             <summary>
-            Reads an entry from the specified path
+            Reads entries from the specified path.
             </summary>
             <param name="path">The path to the entry to read.</param>
+            <returns>The list of entries that matches the path.</returns>
         </member>
         <member name="T:LiveConfiguration.Core.Exception.EntryNotFoundException">
             <summary>
@@ -377,6 +472,14 @@
             <summary>
             The options to configure the <see cref="T:LiveConfiguration.Core.ILiveConfiguration"/>
             </summary>
+        </member>
+        <member name="M:LiveConfiguration.Core.Extensions.LiveConfigurationExtensions.GetValueAsync``1(LiveConfiguration.Core.ILiveConfiguration,System.String)">
+            <summary>
+            Gets a configuration entry and parses its value to a generic type
+            </summary>
+            <typeparam name="T">The type to convert the value to.</typeparam>
+            <param name="configuration">The <see cref="T:LiveConfiguration.Core.ILiveConfiguration"/> instance.</param>
+            <param name="path">The path to get.</param>
         </member>
     </members>
 </doc>

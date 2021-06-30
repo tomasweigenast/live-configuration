@@ -36,6 +36,11 @@
             The project id to use
             </summary>
         </member>
+        <member name="P:LiveConfiguration.Firestore.FirestoreSourceOptions.EmulatorDetection">
+            <summary>
+            The algorithm to use when detecting emulator
+            </summary>
+        </member>
         <member name="P:LiveConfiguration.Firestore.FirestoreSourceOptions.CollectionName">
             <summary>
             The name of the collection where the entries will be saved

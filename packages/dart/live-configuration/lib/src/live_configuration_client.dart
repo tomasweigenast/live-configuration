@@ -25,25 +25,33 @@ class LiveConfigurationClient {
 
   DateTime? _lastFetchDate;
 
-  LiveConfigurationClient({
-    required LiveConfigurationOptions options, 
-    required BaseConfigurationEntryPersistance persistance,
-    required BaseConfigurationDeserializer deserializer,
-    TypeDecoderOptions? typeDecoder}) 
-      : _options = options, _persistance = persistance, _deserializer = deserializer, _typeDecoder = typeDecoder, _entries = {}, _store = KeyValueStore();
+  LiveConfigurationClient(
+      {required LiveConfigurationOptions options,
+      required BaseConfigurationEntryPersistance persistance,
+      required BaseConfigurationDeserializer deserializer,
+      TypeDecoderOptions? typeDecoder})
+      : _options = options,
+        _persistance = persistance,
+        _deserializer = deserializer,
+        _typeDecoder = typeDecoder,
+        _entries = {},
+        _store = KeyValueStore();
 
-  LiveConfigurationClient.dev({
-    Iterable<ConfigEntry>? defaultEntries, 
-    LiveConfigurationOptions? options,
-    BaseConfigurationEntryPersistance? persistance,
-    BaseConfigurationDeserializer? deserializer,
-    TypeDecoderOptions? typeDecoder})
+  LiveConfigurationClient.dev(
+      {Iterable<ConfigEntry>? defaultEntries,
+      LiveConfigurationOptions? options,
+      BaseConfigurationEntryPersistance? persistance,
+      BaseConfigurationDeserializer? deserializer,
+      TypeDecoderOptions? typeDecoder})
       : _options = options ?? LiveConfigurationOptions(connectionEndpoint: ''),
-        _persistance = persistance ?? FileConfigurationEntryPersistance('configuration-entries.json'),
+        _persistance = persistance ??
+            FileConfigurationEntryPersistance('configuration-entries.json'),
         _deserializer = deserializer ?? JsonConfigurationDeserializer(),
         _typeDecoder = typeDecoder,
         _store = KeyValueStore(),
-        _entries = defaultEntries != null ? { for (var e in defaultEntries) e.key : e } : {};
+        _entries = defaultEntries != null
+            ? {for (var e in defaultEntries) e.key: e}
+            : {};
 
   /// Initializes the live configuration client
   Future init() async {
@@ -57,40 +65,50 @@ class LiveConfigurationClient {
   }
 
   String getString(String key) {
-    return _getEntry(key, ConfigurationEntryValueType.ConfigurationEntryValueType_STRING);
+    return _getEntry(
+        key, ConfigurationEntryValueType.ConfigurationEntryValueType_STRING);
   }
 
   bool getBool(String key) {
-    return _getEntry(key, ConfigurationEntryValueType.ConfigurationEntryValueType_BOOL);
+    return _getEntry(
+        key, ConfigurationEntryValueType.ConfigurationEntryValueType_BOOL);
   }
 
   int getInt(String key) {
-    return _getEntry(key, ConfigurationEntryValueType.ConfigurationEntryValueType_INT);
+    return _getEntry(
+        key, ConfigurationEntryValueType.ConfigurationEntryValueType_INT);
   }
 
   double getDouble(String key) {
-    return _getEntry(key, ConfigurationEntryValueType.ConfigurationEntryValueType_DOUBLE);
+    return _getEntry(
+        key, ConfigurationEntryValueType.ConfigurationEntryValueType_DOUBLE);
   }
 
   Duration getDuration(String key) {
-    return _getEntry(key, ConfigurationEntryValueType.ConfigurationEntryValueType_DURATION);
+    return _getEntry(
+        key, ConfigurationEntryValueType.ConfigurationEntryValueType_DURATION);
   }
 
   DateTime getDateTime(String key) {
-    return _getEntry(key, ConfigurationEntryValueType.ConfigurationEntryValueType_TIMESTAMP);
+    return _getEntry(
+        key, ConfigurationEntryValueType.ConfigurationEntryValueType_TIMESTAMP);
   }
 
   List<T> getList<T>(String key) {
-    var list = _getEntry(key, ConfigurationEntryValueType.ConfigurationEntryValueType_LIST);
+    var list = _getEntry(
+        key, ConfigurationEntryValueType.ConfigurationEntryValueType_LIST);
     try {
       return (list as List).cast<T>().toList();
-    } catch(_) {
+    } catch (_) {
       List<T>? result = <T>[];
       result = _cacheTypes[result.runtimeType];
-      if(result == null) {
+      if (result == null) {
         try {
-          result = (list as List).cast<Map>().map((e) => _decode<T>(e.cast<String, dynamic>())).toList();
-        } catch(_) {
+          result = (list as List)
+              .cast<Map>()
+              .map((e) => _decode<T>(e.cast<String, dynamic>()))
+              .toList();
+        } catch (_) {
           throw ArgumentError("Can't decode entries of type $T");
         }
 
@@ -102,17 +120,19 @@ class LiveConfigurationClient {
   }
 
   Map<TKey, TValue> getMap<TKey, TValue>(String key) {
-    var map = _getEntry(key, ConfigurationEntryValueType.ConfigurationEntryValueType_JSON);
+    var map = _getEntry(
+        key, ConfigurationEntryValueType.ConfigurationEntryValueType_JSON);
     return (map as Map).cast<TKey, TValue>();
   }
 
   T getAs<T>(String key) {
-    if(_typeDecoder == null) {
-      throw ArgumentError('Could not convert to type if type decoder is not specified.');
+    if (_typeDecoder == null) {
+      throw ArgumentError(
+          'Could not convert to type if type decoder is not specified.');
     }
 
     T? instance = _cacheTypes[T];
-    if(instance == null) {
+    if (instance == null) {
       var map = getMap<String, dynamic>(key);
       instance = _decode<T>(map);
 
@@ -126,21 +146,22 @@ class LiveConfigurationClient {
     var decoder = _typeDecoder!.decoder;
     var typeInstance = _typeDecoder!.typeRegistry[T];
 
-    if(typeInstance == null) {
+    if (typeInstance == null) {
       throw ArgumentError('Could not found any type factory for type $T');
     }
 
     return decoder.decode<T>(typeInstance(), map);
-  } 
+  }
 
   dynamic _getEntry(String key, ConfigurationEntryValueType verifyType) {
     var entry = _entries[key];
-    if(entry == null) {
+    if (entry == null) {
       return null;
     }
 
-    if(entry.valueType != verifyType) {
-      throw ArgumentError('Could not convert entry of type ${entry.valueType} to $verifyType.');
+    if (entry.valueType != verifyType) {
+      throw ArgumentError(
+          'Could not convert entry of type ${entry.valueType} to $verifyType.');
     }
 
     return entry.value;
@@ -148,46 +169,53 @@ class LiveConfigurationClient {
 
   /// Fetches entries from remote server if current ones are out dated
   Future _fetch() async {
-
     // Ignore because values are up to date
-    if(_entries.isNotEmpty || (_lastFetchDate != null && _lastFetchDate!.add(_options.cacheTtl).isAfter(DateTime.now()))) {
+    if (_entries.isNotEmpty ||
+        (_lastFetchDate != null &&
+            _lastFetchDate!.add(_options.cacheTtl).isAfter(DateTime.now()))) {
       return;
     }
 
     // Make request
     try {
-      var response = await http.get(Uri.parse(_options.connectionEndpoint)).timeout(const Duration(seconds: 10));
+      var response = await http
+          .get(Uri.parse(_options.connectionEndpoint))
+          .timeout(const Duration(seconds: 10));
 
       // Parse response
-      var buffer = _options.responseInterpreter != null ? _options.responseInterpreter!(response) : LiveConfigurationOptions.defaultResponseInterpreter(response);
+      var buffer = _options.responseInterpreter != null
+          ? _options.responseInterpreter!(response)
+          : LiveConfigurationOptions.defaultResponseInterpreter(response);
 
       // Deserialize buffer
       var entries = _deserializer.deserialize(buffer);
 
       // Populate to cache
-      _entries.addAll({ for (var e in entries) e.key : e });
+      _entries.addAll({for (var e in entries) e.key: e});
 
       // Save to file
       await _persistance.saveAll(entries);
 
       await _setLastFetchDate();
-
-    } catch(ex) {
-      if(ex is TimeoutException) {
-        print('[LIVE-CONFIGURATION] Could not fetch entries from remote server. Timeout exception.');
+    } catch (ex) {
+      if (ex is TimeoutException) {
+        print(
+            '[LIVE-CONFIGURATION] Could not fetch entries from remote server. Timeout exception.');
       } else {
-        print('[LIVE-CONFIGURATION] Could not fetch entries from remote server: $ex');
+        print(
+            '[LIVE-CONFIGURATION] Could not fetch entries from remote server: $ex');
       }
     }
   }
 
   DateTime? _getLastFetchDate() {
     var lastFetchTimestamp = _store.getValue<int>('last_fetch');
-    if(lastFetchTimestamp != null) {
+    if (lastFetchTimestamp != null) {
       try {
-        _lastFetchDate = DateTime.fromMillisecondsSinceEpoch(lastFetchTimestamp);
+        _lastFetchDate =
+            DateTime.fromMillisecondsSinceEpoch(lastFetchTimestamp);
         return _lastFetchDate;
-      } catch(_) {}
+      } catch (_) {}
     }
   }
 

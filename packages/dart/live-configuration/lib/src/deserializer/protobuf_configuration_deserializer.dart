@@ -5,7 +5,6 @@ import 'package:live_configuration/src/encoding/protobuf_encoding.dart';
 import 'package:live_configuration/src/models/configuration/config_entry.dart';
 
 class ProtobufConfigurationDeserializer extends BaseConfigurationDeserializer {
-  
   @override
   Iterable<ConfigEntry> deserialize(Uint8List buffer) {
     return ProtobufEncoding.decode(buffer);

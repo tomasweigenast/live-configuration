@@ -1,4 +1,5 @@
-﻿using Grpc.Core;
+﻿using Google.Api.Gax;
+using Grpc.Core;
 
 namespace LiveConfiguration.Firestore
 {
@@ -16,6 +17,11 @@ namespace LiveConfiguration.Firestore
         /// The project id to use
         /// </summary>
         public string ProjectId { get; set; }
+
+        /// <summary>
+        /// The algorithm to use when detecting emulator
+        /// </summary>
+        public EmulatorDetection EmulatorDetection { get; set; }
 
         /// <summary>
         /// The name of the collection where the entries will be saved
