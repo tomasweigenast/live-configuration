@@ -10,7 +10,7 @@ using Type = System.Type;
 
 namespace LiveConfiguration.Serializer.Protobuf
 {
-    public static class ProtobufSerializerExtensions
+    internal static class ProtobufSerializerExtensions
     {
         private static readonly Type EnumerableType = typeof(IEnumerable);
 
