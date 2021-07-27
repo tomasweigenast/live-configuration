@@ -1,4 +1,4 @@
-/// Provides methods to decode types from configuration entries.
+/// Provides methods to decode non primitive types (such as custom classes) from configuration entries.
 /// [TBaseType] reffers to the base type a class must implement in order to use the current
 /// decoder.
 abstract class TypeDecoder<TBaseType> {

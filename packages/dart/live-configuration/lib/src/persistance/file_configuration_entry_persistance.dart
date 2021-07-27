@@ -5,9 +5,8 @@ import 'package:live_configuration/src/models/configuration/config_entry.dart';
 import 'package:live_configuration/src/persistance/base_configuration_entry_persistance.dart';
 
 /// Persists all the configuration entries to a file
-class FileConfigurationEntryPersistance
-    extends BaseConfigurationEntryPersistance {
-  late File file;
+class FileConfigurationEntryPersistance extends BaseConfigurationEntryPersistance {
+  late final File file;
 
   FileConfigurationEntryPersistance(String path) {
     file = File(path);

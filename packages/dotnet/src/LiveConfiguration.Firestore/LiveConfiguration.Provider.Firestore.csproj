@@ -14,8 +14,8 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>D:\Tomas\Git\live-configuration\packages\dotnet\src\LiveConfiguration.Firestore\LiveConfiguration.Provider.Firestore.xml</DocumentationFile>
-    <OutputPath>D:\Tomas\Git\live-configuration\packages\dotnet\release\LiveConfiguration.Provider.Firestore</OutputPath>
+    <DocumentationFile>E:\Git\live-configuration\packages\dotnet\release\LiveConfiguration.Provider.Firestore\LiveConfiguration.Provider.Firestore.xml</DocumentationFile>
+    <OutputPath>E:\Git\live-configuration\packages\dotnet\release\LiveConfiguration.Provider.Firestore</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>

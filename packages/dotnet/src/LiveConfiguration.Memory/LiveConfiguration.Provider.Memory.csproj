@@ -14,8 +14,8 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>D:\Tomas\Git\live-configuration\packages\dotnet\src\LiveConfiguration.Memory\LiveConfiguration.Provider.Memory.xml</DocumentationFile>
-    <OutputPath>D:\Tomas\Git\live-configuration\packages\dotnet\release\LiveConfiguration.Provider.Memory</OutputPath>
+    <DocumentationFile>E:\Git\live-configuration\packages\dotnet\release\LiveConfiguration.Provider.Memory\LiveConfiguration.Provider.Memory.xml</DocumentationFile>
+    <OutputPath>E:\Git\live-configuration\packages\dotnet\release\LiveConfiguration.Provider.Memory</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>

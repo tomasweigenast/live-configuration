@@ -36,7 +36,7 @@ namespace LiveConfiguration.Serializer.Protobuf
                         {
                             Key = x.Key,
                             ValueType = x.ValueType.ToConfigurationEntryValueType(),
-                            Value = x.RawValue.ToConfigurationEntryValue(x.ValueType)
+                            Value = x.RawValue.ToConfigurationEntryValueAsync(x.ValueType).Result
                         })
                 }
             };
@@ -60,10 +60,41 @@ namespace LiveConfiguration.Serializer.Protobuf
         }
 
         /// <inheritdoc/>
-        public Task<Stream> SerializeAsync(IEnumerable<IConfigurationGroup> configurationGroups, Func<IConfigurationGroup, bool> filter)
+        public async Task<Stream> SerializeAsync(IEnumerable<IConfigurationGroup> configurationGroups, Func<IConfigurationGroup, bool> filter)
         {
-            Stream stream = Serialize(configurationGroups, filter);
-            return Task.FromResult(stream);
+            if (filter != null)
+                configurationGroups = configurationGroups.Where(filter);
+
+            // Parse entries
+            ConfigurationEntries entries = new();
+            foreach(var entry in configurationGroups.SelectMany(x => x.Entries))
+            {
+                ConfigurationEntry configurationEntry = new()
+                {
+                    Key = entry.Key,
+                    ValueType = entry.ValueType.ToConfigurationEntryValueType(),
+                    Value = await entry.RawValue.ToConfigurationEntryValueAsync(entry.ValueType)
+                };
+
+                entries.Entries.Add(configurationEntry);
+            }
+
+            // Create writer and serialize
+            byte[] contractName = Encoding.UTF8.GetBytes(ContractName);
+            MemoryStream output = new();
+            using (BinaryWriter writer = new(output, encoding: Encoding.UTF8, leaveOpen: true))
+            {
+                writer.Write(contractName);
+                writer.Write(ILiveConfigurationSerializer.ContractNameMagicBytes);
+
+                // Write protobuf
+                byte[] protobufSerialized = entries.ToByteArray();
+                writer.Write(protobufSerialized);
+            }
+
+            // Seek to origin
+            output.Seek(0, SeekOrigin.Begin);
+            return output;
         }
     }
 }

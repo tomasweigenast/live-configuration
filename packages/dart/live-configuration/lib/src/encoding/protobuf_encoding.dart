@@ -3,8 +3,7 @@ import 'dart:typed_data';
 import 'package:live_configuration/src/models/configuration/config_entry.dart';
 import 'package:live_configuration/src/models/protos/google/protobuf/timestamp.pbserver.dart';
 import 'package:live_configuration/src/models/protos/live_configuration.pb.dart';
-import 'package:live_configuration/src/models/protos/google/protobuf/duration.pb.dart'
-    as protobuf;
+import 'package:live_configuration/src/models/protos/google/protobuf/duration.pb.dart' as protobuf;
 import 'package:fixnum/fixnum.dart';
 
 class ProtobufEncoding {
@@ -12,8 +11,7 @@ class ProtobufEncoding {
 
   static Iterable<ConfigEntry> decode(Uint8List buffer) {
     var entries = ConfigurationEntries.fromBuffer(buffer).entries;
-    return entries
-        .map((e) => ConfigEntry(e.key, e.valueType, _extractValue(e.value)));
+    return entries.map((e) => ConfigEntry(e.key, e.valueType, _extractValue(e.value)));
   }
 
   static Uint8List encode(Iterable<ConfigEntry> entries) {
@@ -67,13 +65,15 @@ class ProtobufEncoding {
       case ConfigurationEntryValue_Kind.nullValue:
         return null;
 
+      case ConfigurationEntryValue_Kind.bytesValue:
+        return Uint8List.fromList(value.bytesValue);
+
       default:
         throw Exception('Invalid type $valueType');
     }
   }
 
-  static ConfigurationEntryValue _getConfigurationEntryValue(
-      dynamic value, ConfigurationEntryValueType valueType) {
+  static ConfigurationEntryValue _getConfigurationEntryValue(dynamic value, ConfigurationEntryValueType valueType) {
     switch (valueType) {
       case ConfigurationEntryValueType.ConfigurationEntryValueType_BOOL:
         return ConfigurationEntryValue(boolValue: value);
@@ -86,6 +86,9 @@ class ProtobufEncoding {
 
       case ConfigurationEntryValueType.ConfigurationEntryValueType_STRING:
         return ConfigurationEntryValue(stringValue: value);
+
+      case ConfigurationEntryValueType.ConfigurationEntryValueType_BYTES:
+        return ConfigurationEntryValue(bytesValue: value);
 
       case ConfigurationEntryValueType.ConfigurationEntryValueType_DURATION:
         var duration = value as Duration;
@@ -119,11 +122,9 @@ class ProtobufEncoding {
     }
   }
 
-  static ConfigurationEntryValue _getConfigurationEntryValueWithoutValueType(
-      dynamic value) {
+  static ConfigurationEntryValue _getConfigurationEntryValueWithoutValueType(dynamic value) {
     if (value == null) {
-      return ConfigurationEntryValue(
-          nullValue: ConfigurationEntryValue_NullValue.NULL_VALUE_NULL);
+      return ConfigurationEntryValue(nullValue: ConfigurationEntryValue_NullValue.NULL_VALUE_NULL);
     } else if (value is bool) {
       return ConfigurationEntryValue(boolValue: value);
     } else if (value is int) {
@@ -132,6 +133,8 @@ class ProtobufEncoding {
       return ConfigurationEntryValue(doubleValue: value);
     } else if (value is String) {
       return ConfigurationEntryValue(stringValue: value);
+    } else if(value is Uint8List) {
+      return ConfigurationEntryValue(bytesValue: value);
     } else if (value is Iterable) {
       return ConfigurationEntryValue(
           listValue: ConfigurationEntryListValue(

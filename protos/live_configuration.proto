@@ -28,6 +28,7 @@ message ConfigurationEntryValue {
         ConfigurationEntryMapValue map_value = 7;
         google.protobuf.Timestamp timestamp_value = 8;
         google.protobuf.Duration duration_value = 9;
+        bytes bytes_value = 10;
     }
 
     enum NullValue {
@@ -52,4 +53,5 @@ enum ConfigurationEntryValueType {
     ConfigurationEntryValueType_JSON = 5;
     ConfigurationEntryValueType_TIMESTAMP = 6;
     ConfigurationEntryValueType_DURATION = 7;
+    ConfigurationEntryValueType_BYTES = 8;
 }

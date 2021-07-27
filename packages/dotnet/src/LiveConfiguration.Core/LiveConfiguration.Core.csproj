@@ -10,12 +10,12 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/TomasWeg/live-configuration</RepositoryUrl>
     <PackageProjectUrl>https://github.com/TomasWeg/live-configuration</PackageProjectUrl>
-    <Version>2.2.0</Version>
+    <Version>2.3.0</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>D:\Tomas\Git\live-configuration\packages\dotnet\src\LiveConfiguration.Core\LiveConfiguration.Core.xml</DocumentationFile>
-    <OutputPath>D:\Tomas\Git\live-configuration\packages\dotnet\release\LiveConfiguration.Core</OutputPath>
+    <DocumentationFile>E:\Git\live-configuration\packages\dotnet\release\LiveConfiguration.Core\LiveConfiguration.Core.xml</DocumentationFile>
+    <OutputPath>E:\Git\live-configuration\packages\dotnet\release\LiveConfiguration.Core</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>

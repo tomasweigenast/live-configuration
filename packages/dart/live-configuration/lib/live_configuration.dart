@@ -2,7 +2,6 @@ library live_configuration;
 
 export 'src/live_configuration_client.dart';
 export 'src/models/live_configuration_options.dart';
-export 'src/models/configuration/config_type.dart';
 export 'src/models/configuration/config_entry.dart';
 export 'src/deserializer/base_configuration_deserializer.dart';
 export 'src/deserializer/json_configuration_deserializer.dart';

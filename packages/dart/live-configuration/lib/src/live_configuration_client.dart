@@ -1,17 +1,14 @@
 import 'dart:async';
-import 'dart:typed_data';
 
+import 'package:http/http.dart' as http;
 import 'package:live_configuration/src/deserializer/base_configuration_deserializer.dart';
 import 'package:live_configuration/src/deserializer/json_configuration_deserializer.dart';
-import 'package:live_configuration/src/deserializer/protobuf_configuration_deserializer.dart';
 import 'package:live_configuration/src/models/configuration/config_entry.dart';
 import 'package:live_configuration/src/models/live_configuration_options.dart';
 import 'package:live_configuration/src/models/protos/live_configuration.pb.dart';
 import 'package:live_configuration/src/persistance/base_configuration_entry_persistance.dart';
 import 'package:live_configuration/src/persistance/file_configuration_entry_persistance.dart';
 import 'package:live_configuration/src/persistance/key_value_store.dart';
-
-import 'package:http/http.dart' as http;
 import 'package:live_configuration/src/type_decoder/type_decoder_options.dart';
 
 class LiveConfigurationClient {
@@ -20,38 +17,48 @@ class LiveConfigurationClient {
   final BaseConfigurationDeserializer _deserializer;
   final TypeDecoderOptions? _typeDecoder;
   final Map<String, ConfigEntry> _entries;
-  final KeyValueStore _store;
   final Map<Type, dynamic> _cacheTypes = {};
+  final BaseKeyValueStore _store;
 
   DateTime? _lastFetchDate;
 
+  /// Creates a new [LiveConfigurationClient]
+  /// [options] The options to configure the client.
+  /// [persistance] The persistance implementation to use in order to save entries locally.
+  /// [deserializer] The configuration deserializer to use.
+  /// [typeDecoder] The type decoder to use. It is not required unless non primitive types are needed.
+  /// [optionsSavePath] The path where to save [LiveConfigurationClient] settings 
   LiveConfigurationClient(
       {required LiveConfigurationOptions options,
       required BaseConfigurationEntryPersistance persistance,
       required BaseConfigurationDeserializer deserializer,
-      TypeDecoderOptions? typeDecoder})
+      TypeDecoderOptions? typeDecoder,
+      String? optionsSavePath})
       : _options = options,
         _persistance = persistance,
         _deserializer = deserializer,
         _typeDecoder = typeDecoder,
         _entries = {},
-        _store = KeyValueStore();
+        _store = KeyValueStore(optionsSavePath);
 
-  LiveConfigurationClient.dev(
+  /// Creates a mockable instance of the [LiveConfigurationClient]
+  /// [defaultEntries] the entries to use.
+  /// [options] the options to use.
+  /// [persistance] the persistance to use.
+  /// [deserializer] the deserializer to use.
+  LiveConfigurationClient.mock(
       {Iterable<ConfigEntry>? defaultEntries,
       LiveConfigurationOptions? options,
       BaseConfigurationEntryPersistance? persistance,
       BaseConfigurationDeserializer? deserializer,
+      String? optionsSavePath,
       TypeDecoderOptions? typeDecoder})
       : _options = options ?? LiveConfigurationOptions(connectionEndpoint: ''),
-        _persistance = persistance ??
-            FileConfigurationEntryPersistance('configuration-entries.json'),
+        _persistance = persistance ?? FileConfigurationEntryPersistance('configuration-entries.json'),
         _deserializer = deserializer ?? JsonConfigurationDeserializer(),
         _typeDecoder = typeDecoder,
-        _store = KeyValueStore(),
-        _entries = defaultEntries != null
-            ? {for (var e in defaultEntries) e.key: e}
-            : {};
+        _store = KeyValueStore(optionsSavePath),
+        _entries = defaultEntries != null ? {for (var e in defaultEntries) e.key: e} : {};
 
   /// Initializes the live configuration client
   Future init() async {
@@ -212,8 +219,7 @@ class LiveConfigurationClient {
     var lastFetchTimestamp = _store.getValue<int>('last_fetch');
     if (lastFetchTimestamp != null) {
       try {
-        _lastFetchDate =
-            DateTime.fromMillisecondsSinceEpoch(lastFetchTimestamp);
+        _lastFetchDate = DateTime.fromMillisecondsSinceEpoch(lastFetchTimestamp);
         return _lastFetchDate;
       } catch (_) {}
     }

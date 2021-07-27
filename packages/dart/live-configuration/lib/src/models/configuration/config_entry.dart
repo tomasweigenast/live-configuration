@@ -1,4 +1,7 @@
+import 'dart:typed_data';
+
 import 'package:live_configuration/src/models/protos/live_configuration.pb.dart';
+import 'package:protobuf/protobuf.dart';
 
 /// Represents a configuration entry with its value
 class ConfigEntry {
@@ -42,13 +45,16 @@ class ConfigEntry {
         value);
   }
 
+  factory ConfigEntry.forUint8List(String key, Uint8List value) {
+    return ConfigEntry(key, ConfigurationEntryValueType.ConfigurationEntryValueType_BYTES, value);
+  }
+
   factory ConfigEntry.forList(String key, List value) {
     return ConfigEntry(key,
         ConfigurationEntryValueType.ConfigurationEntryValueType_LIST, value);
   }
 
   factory ConfigEntry.forMap(String key, Map<String, dynamic> value) {
-    return ConfigEntry(key,
-        ConfigurationEntryValueType.ConfigurationEntryValueType_JSON, value);
+    return ConfigEntry(key, ConfigurationEntryValueType.ConfigurationEntryValueType_JSON, value);
   }
 }
