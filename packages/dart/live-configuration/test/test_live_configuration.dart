@@ -117,8 +117,8 @@ void main() {
         "LiveConfigurationClient.getAs<T>(key) returns the value of an entry as a the generic type, throwing an exception if the configuration entry isn't of type Map or it can't be converted to the generic type.",
         () {
       var mainCity = client!.getAs<AppCity>('mainCity');
-      expect(mainCity.city, 'Toronto');
-      expect(mainCity.enabled, true);
+      expect(mainCity?.city, 'Toronto');
+      expect(mainCity?.enabled, true);
     });
 
     test(

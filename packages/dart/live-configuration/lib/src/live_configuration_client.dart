@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
 import 'package:live_configuration/src/deserializer/base_configuration_deserializer.dart';
@@ -71,37 +72,41 @@ class LiveConfigurationClient {
     unawaited(_fetch());
   }
 
-  String getString(String key) {
+  String? getString(String key) {
     return _getEntry(
         key, ConfigurationEntryValueType.ConfigurationEntryValueType_STRING);
   }
 
-  bool getBool(String key) {
+  bool? getBool(String key) {
     return _getEntry(
         key, ConfigurationEntryValueType.ConfigurationEntryValueType_BOOL);
   }
 
-  int getInt(String key) {
+  int? getInt(String key) {
     return _getEntry(
         key, ConfigurationEntryValueType.ConfigurationEntryValueType_INT);
   }
 
-  double getDouble(String key) {
+  double? getDouble(String key) {
     return _getEntry(
         key, ConfigurationEntryValueType.ConfigurationEntryValueType_DOUBLE);
   }
 
-  Duration getDuration(String key) {
+  Duration? getDuration(String key) {
     return _getEntry(
         key, ConfigurationEntryValueType.ConfigurationEntryValueType_DURATION);
   }
 
-  DateTime getDateTime(String key) {
+  DateTime? getDateTime(String key) {
     return _getEntry(
         key, ConfigurationEntryValueType.ConfigurationEntryValueType_TIMESTAMP);
   }
 
-  List<T> getList<T>(String key) {
+  Uint8List? getUint8List(String key) {
+    return _getEntry(key, ConfigurationEntryValueType.ConfigurationEntryValueType_BYTES);
+  }
+
+  List<T>? getList<T>(String key) {
     var list = _getEntry(
         key, ConfigurationEntryValueType.ConfigurationEntryValueType_LIST);
     try {
@@ -126,13 +131,13 @@ class LiveConfigurationClient {
     }
   }
 
-  Map<TKey, TValue> getMap<TKey, TValue>(String key) {
+  Map<TKey, TValue>? getMap<TKey, TValue>(String key) {
     var map = _getEntry(
         key, ConfigurationEntryValueType.ConfigurationEntryValueType_JSON);
     return (map as Map).cast<TKey, TValue>();
   }
 
-  T getAs<T>(String key) {
+  T? getAs<T>(String key) {
     if (_typeDecoder == null) {
       throw ArgumentError(
           'Could not convert to type if type decoder is not specified.');
@@ -141,6 +146,10 @@ class LiveConfigurationClient {
     T? instance = _cacheTypes[T];
     if (instance == null) {
       var map = getMap<String, dynamic>(key);
+      if(map == null) {
+        return null;
+      }
+
       instance = _decode<T>(map);
 
       _cacheTypes[T] = instance;
