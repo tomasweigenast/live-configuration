@@ -107,13 +107,17 @@ namespace LiveConfiguration.Firestore
 
                     string[] pathParts = entry.Key.Split('/');
 
-                    object serializedEntry = SerializeEntry(entry.Value);
+                    object serializedEntry = SerializeEntry(entry.Value, pathParts[1]);
                     DocumentReference documentReference = mFirestore.Collection(mOptions.CollectionName).Document(pathParts[0]).Collection("entries").Document(pathParts[1]);
 
                     if (serializedEntry is Stream stream)
-                        transaction.Update(documentReference, "buffer", Blob.FromByteString(await ByteString.FromStreamAsync(stream)));
+                        transaction.Set(documentReference, new Dictionary<string, object> 
+                        {
+                            { "buffer", Blob.FromByteString(await ByteString.FromStreamAsync(stream)) }
+
+                        }, SetOptions.MergeFields("buffer"));
                     else if (serializedEntry is Dictionary<string, object> fields)
-                        transaction.Update(documentReference, fields);
+                        transaction.Set(documentReference, fields, SetOptions.MergeAll);
                 }
             });
         }
@@ -150,10 +154,10 @@ namespace LiveConfiguration.Firestore
 
             return new GroupSource()
             {
-                Key = fields.GetValueOrDefault<string>(nameof(EntryMetadata.Key)),
-                Name = fields.GetValueOrDefault<string>(nameof(EntryMetadata.Name)),
-                Description = fields.GetValueOrDefault<string>(nameof(EntryMetadata.Description)),
-                Metadata = fields.GetValueOrDefault<IEnumerable<KeyValuePair<string, string>>>(nameof(EntryMetadata.Metadata)),
+                Key = fields.GetValueOrDefault<string>("key"),
+                Name = fields.GetValueOrDefault<string>("name"),
+                Description = fields.GetValueOrDefault<string>("description"),
+                Metadata = fields.GetValueOrDefault<IEnumerable<KeyValuePair<string, string>>>("metadata"),
                 Entries = entries
             };
         }
@@ -179,25 +183,25 @@ namespace LiveConfiguration.Firestore
 
             return new EntrySource
             {
-                Key = fields.GetValueOrDefault<string>(nameof(EntryMetadata.Key)),
-                Name = fields.GetValueOrDefault<string>(nameof(EntryMetadata.Name)),
-                Description = fields.GetValueOrDefault<string>(nameof(EntryMetadata.Description)),
-                Metadata = fields.GetValueOrDefault<IEnumerable<KeyValuePair<string, string>>>(nameof(EntryMetadata.Metadata)),
-                ValueType = fields.GetValueOrDefault<EntryValueType>(nameof(EntrySource.ValueType)),
-                RawValue = fields.GetValueOrDefault<object>(nameof(EntrySource.RawValue)),
+                Key = fields.GetValueOrDefault<string>("key"),
+                Name = fields.GetValueOrDefault<string>("name"),
+                Description = fields.GetValueOrDefault<string>("description"),
+                Metadata = fields.GetValueOrDefault<IEnumerable<KeyValuePair<string, string>>>("metadata"),
+                ValueType = fields.GetValueOrDefault<EntryValueType>("valueType"),
+                RawValue = fields.GetValueOrDefault<object>("value"),
             };
         }
 
-        private async Task<object> SerializeEntry(EntrySource entry)
+        private async Task<object> SerializeEntry(EntrySource entry, string key)
         {
             Dictionary<string, object> fields = new()
             {
-                { nameof(EntryMetadata.Key), entry.Key },
-                { nameof(EntryMetadata.Name), entry.Name },
-                { nameof(EntryMetadata.Description), entry.Description },
-                { nameof(EntryMetadata.Metadata), entry.Metadata },
-                { nameof(EntrySource.ValueType), entry.ValueType },
-                { nameof(EntrySource.RawValue), entry.RawValue },
+                { "key", key },
+                { "name", entry.Name },
+                { "description", entry.Description },
+                { "metadata", entry.Metadata },
+                { "valueType", entry.ValueType },
+                { "value", entry.RawValue },
             };
 
             // Serialize

@@ -9,8 +9,9 @@ import 'package:live_configuration/src/models/live_configuration_options.dart';
 import 'package:live_configuration/src/models/protos/live_configuration.pb.dart';
 import 'package:live_configuration/src/persistance/base_configuration_entry_persistance.dart';
 import 'package:live_configuration/src/persistance/file_configuration_entry_persistance.dart';
-import 'package:live_configuration/src/persistance/key_value_store.dart';
+import 'package:live_configuration/src/persistance/key_value/base_key_value_store.dart';
 import 'package:live_configuration/src/type_decoder/type_decoder_options.dart';
+
 
 class LiveConfigurationClient {
   final LiveConfigurationOptions _options;
@@ -20,8 +21,13 @@ class LiveConfigurationClient {
   final Map<String, ConfigEntry> _entries;
   final Map<Type, dynamic> _cacheTypes = {};
   final BaseKeyValueStore _store;
+  final Completer _firstSyncCompleter = Completer();
 
   DateTime? _lastFetchDate;
+  bool _hasFirstSynced = false;
+
+  /// A completer that can be used to await until the first synchronization is made.
+  Completer get firstSyncCompleter => _firstSyncCompleter;
 
   /// Creates a new [LiveConfigurationClient]
   /// [options] The options to configure the client.
@@ -33,14 +39,15 @@ class LiveConfigurationClient {
       {required LiveConfigurationOptions options,
       required BaseConfigurationEntryPersistance persistance,
       required BaseConfigurationDeserializer deserializer,
+      Iterable<ConfigEntry>? defaultEntries,
       TypeDecoderOptions? typeDecoder,
       String? optionsSavePath})
       : _options = options,
         _persistance = persistance,
         _deserializer = deserializer,
         _typeDecoder = typeDecoder,
-        _entries = {},
-        _store = KeyValueStore(optionsSavePath);
+        _entries = defaultEntries != null ? {for (var e in defaultEntries) e.key: e} : {},
+        _store = BaseKeyValueStore.instance;
 
   /// Creates a mockable instance of the [LiveConfigurationClient]
   /// [defaultEntries] the entries to use.
@@ -58,7 +65,7 @@ class LiveConfigurationClient {
         _persistance = persistance ?? FileConfigurationEntryPersistance('configuration-entries.json'),
         _deserializer = deserializer ?? JsonConfigurationDeserializer(),
         _typeDecoder = typeDecoder,
-        _store = KeyValueStore(optionsSavePath),
+        _store = BaseKeyValueStore.instance,
         _entries = defaultEntries != null ? {for (var e in defaultEntries) e.key: e} : {};
 
   /// Initializes the live configuration client
@@ -68,6 +75,12 @@ class LiveConfigurationClient {
 
     // Get last fetch date
     _lastFetchDate = _getLastFetchDate();
+    _hasFirstSynced = _store.getValue<bool>('has_first_synced') ?? false;
+    
+    // If first synced happened, complete inmmediatelly
+    if(_hasFirstSynced) {
+      _firstSyncCompleter.complete();
+    }
 
     unawaited(_fetch());
   }
@@ -186,9 +199,7 @@ class LiveConfigurationClient {
   /// Fetches entries from remote server if current ones are out dated
   Future _fetch() async {
     // Ignore because values are up to date
-    if (_entries.isNotEmpty ||
-        (_lastFetchDate != null &&
-            _lastFetchDate!.add(_options.cacheTtl).isAfter(DateTime.now()))) {
+    if (_entries.isNotEmpty && (_lastFetchDate != null && _lastFetchDate!.add(_options.cacheTtl).isAfter(DateTime.now()))) {
       return;
     }
 
@@ -213,7 +224,15 @@ class LiveConfigurationClient {
       await _persistance.saveAll(entries);
 
       await _setLastFetchDate();
+
+      // If it is the first time the configuration syncs, complete the Completer
+      if(!_hasFirstSynced) {
+        _firstSyncCompleter.complete();
+        _hasFirstSynced = true;
+        await _store.save('has_first_synced', true);
+      }
     } catch (ex) {
+      _firstSyncCompleter.completeError(ex);
       if (ex is TimeoutException) {
         print(
             '[LIVE-CONFIGURATION] Could not fetch entries from remote server. Timeout exception.');

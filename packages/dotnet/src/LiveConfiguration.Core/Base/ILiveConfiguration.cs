@@ -1,4 +1,5 @@
-﻿using LiveConfiguration.Core.Serializer;
+﻿using LiveConfiguration.Core.Entry;
+using LiveConfiguration.Core.Serializer;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -30,5 +31,23 @@ namespace LiveConfiguration.Core
         /// Gets all the configuration groups
         /// </summary>
         public Task<IEnumerable<IConfigurationGroup>> GetAllAsync();
+
+        /// <summary>
+        /// Updates a configuration entry
+        /// </summary>
+        /// <param name="path">The path to the entry.</param>
+        /// <param name="value">The value to set.</param>
+        public Task UpdateAsync(string path, object value);
+
+        /// <summary>
+        /// Creates a new entry
+        /// </summary>
+        /// <param name="path">The path of the entry.</param>
+        /// <param name="name">The name of the entry.</param>
+        /// <param name="description">The description of the entry.</param>
+        /// <param name="valueType">The value type to hold.</param>
+        /// <param name="value">The value to set.</param>
+        /// <param name="metadata">Any metadata to add to the entry.</param>
+        public Task CreateAsync(string path, string name, string description, EntryValueType valueType, object value, IEnumerable<KeyValuePair<string, string>> metadata);
     }
 }

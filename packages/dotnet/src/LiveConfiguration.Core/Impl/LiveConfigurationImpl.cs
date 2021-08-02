@@ -1,4 +1,5 @@
-﻿using LiveConfiguration.Core.Exception;
+﻿using LiveConfiguration.Core.Entry;
+using LiveConfiguration.Core.Exception;
 using LiveConfiguration.Core.Serializer;
 using LiveConfiguration.Core.Source;
 using System;
@@ -35,6 +36,32 @@ namespace LiveConfiguration.Core.Impl
         }
 
         public ILiveConfigurationSerializer Serializer => mSerializer;
+
+        public async Task CreateAsync(string path, string name, string description, EntryValueType valueType, object value, IEnumerable<KeyValuePair<string, string>> metadata)
+        {
+            await mSource.WriteAsync(new[]
+            {
+                KeyValuePair.Create(path, new EntrySource
+                {
+                    Name = name,
+                    Description = description,
+                    RawValue = value,
+                    ValueType = valueType,
+                    Metadata = metadata
+                })
+            });
+        }
+
+        public async Task UpdateAsync(string path, object value)
+        {
+            await mSource.WriteAsync(new[]
+            {
+                KeyValuePair.Create(path, new EntrySource
+                {
+                    RawValue = value
+                })
+            });
+        }
 
         public async Task<IEnumerable<IConfigurationGroup>> GetAllAsync()
         {
