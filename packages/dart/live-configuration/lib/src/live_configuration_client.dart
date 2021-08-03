@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:live_configuration/src/deserializer/base_configuration_deserializer.dart';
 import 'package:live_configuration/src/deserializer/json_configuration_deserializer.dart';
@@ -77,6 +78,11 @@ class LiveConfigurationClient {
     _lastFetchDate = _getLastFetchDate();
     _hasFirstSynced = _store.getValue<bool>('has_first_synced') ?? false;
     
+    var entries = await _persistance.getAll();
+    if(entries != null) {
+      _entries.addAll({ for (var entry in entries) entry.key: entry });
+    }
+
     // If first synced happened, complete inmmediatelly
     if(_hasFirstSynced) {
       _firstSyncCompleter.complete();
@@ -232,7 +238,9 @@ class LiveConfigurationClient {
         await _store.save('has_first_synced', true);
       }
     } catch (ex) {
-      _firstSyncCompleter.completeError(ex);
+      try {
+        _firstSyncCompleter.completeError(ex);
+      } catch(_){}
       if (ex is TimeoutException) {
         print(
             '[LIVE-CONFIGURATION] Could not fetch entries from remote server. Timeout exception.');

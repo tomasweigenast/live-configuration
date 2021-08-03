@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:live_configuration/src/deserializer/configuration_buffer.dart';
 import 'package:live_configuration/src/models/configuration/config_entry.dart';
 import 'package:live_configuration/src/models/protos/google/protobuf/timestamp.pbserver.dart';
 import 'package:live_configuration/src/models/protos/live_configuration.pb.dart';
@@ -9,7 +10,11 @@ import 'package:fixnum/fixnum.dart';
 class ProtobufEncoding {
   ProtobufEncoding._();
 
-  static Iterable<ConfigEntry> decode(Uint8List buffer) {
+  static Iterable<ConfigEntry> decode(Uint8List buffer, {bool sanitize = true}) {
+    if(sanitize) {
+      buffer = ConfigurationBuffer.from(buffer).buffer;
+    }
+    
     var entries = ConfigurationEntries.fromBuffer(buffer).entries;
     return entries.map((e) => ConfigEntry(e.key, e.valueType, _extractValue(e.value)));
   }
@@ -36,7 +41,7 @@ class ProtobufEncoding {
         return value.doubleValue;
 
       case ConfigurationEntryValue_Kind.intValue:
-        return value.intValue;
+        return value.intValue.toInt();
 
       case ConfigurationEntryValue_Kind.stringValue:
         return value.stringValue;

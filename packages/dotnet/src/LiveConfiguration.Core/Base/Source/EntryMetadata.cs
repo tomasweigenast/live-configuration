@@ -25,6 +25,6 @@ namespace LiveConfiguration.Core.Source
         /// <summary>
         /// Any metadata information about the entry
         /// </summary>
-        public IEnumerable<KeyValuePair<string, string>> Metadata { get; set; }
+        public IEnumerable<KeyValuePair<string, object>> Metadata { get; set; }
     }
 }

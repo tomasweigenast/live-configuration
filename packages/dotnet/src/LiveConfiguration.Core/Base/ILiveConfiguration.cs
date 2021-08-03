@@ -48,6 +48,13 @@ namespace LiveConfiguration.Core
         /// <param name="valueType">The value type to hold.</param>
         /// <param name="value">The value to set.</param>
         /// <param name="metadata">Any metadata to add to the entry.</param>
-        public Task CreateAsync(string path, string name, string description, EntryValueType valueType, object value, IEnumerable<KeyValuePair<string, string>> metadata);
+        public Task CreateAsync(string path, string name, string description, EntryValueType valueType, object value, IEnumerable<KeyValuePair<string, object>> metadata);
+
+        /// <summary>
+        /// Creates a new entry
+        /// </summary>
+        /// <param name="groupKey">The key of the group to put this entry to.</param>
+        /// <param name="entry">The entry to create.</param>
+        public Task CreateAsync(string groupKey, IConfigurationEntry entry);
     }
 }

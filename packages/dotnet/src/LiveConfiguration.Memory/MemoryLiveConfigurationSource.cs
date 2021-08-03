@@ -38,7 +38,7 @@ namespace LiveConfiguration.Memory
         #region Methods
 
         ///<inheritdoc/>
-        public Task WriteAsync(IEnumerable<KeyValuePair<string, EntrySource>> entries)
+        public Task<int> WriteAsync(IEnumerable<KeyValuePair<string, EntrySource>> entries)
         {
             foreach(var entry in entries)
             {
@@ -54,7 +54,7 @@ namespace LiveConfiguration.Memory
                 }
             }
 
-            return Task.CompletedTask;
+            return Task.FromResult(entries.Count());
         }
 
         ///<inheritdoc/>

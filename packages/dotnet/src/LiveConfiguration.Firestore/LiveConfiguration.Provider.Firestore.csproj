@@ -10,7 +10,7 @@
     <RepositoryUrl>https://github.com/TomasWeg/live-configuration</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <Version>2.1.2</Version>
+    <Version>2.1.4</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -22,10 +22,6 @@
     <PackageReference Include="Google.Cloud.Firestore" Version="2.4.0" />
     <PackageReference Include="MessagePack" Version="2.2.85" />
     <PackageReference Include="MessagePackAnalyzer" Version="2.2.85" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\LiveConfiguration.Core\LiveConfiguration.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

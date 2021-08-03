@@ -5,6 +5,7 @@ using LiveConfiguration.Core.Entry;
 using LiveConfiguration.Core.Protobuf;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -17,6 +18,7 @@ namespace LiveConfiguration.Serializer.Protobuf
     internal static class ProtobufSerializerExtensions
     {
         private static readonly Type EnumerableType = typeof(IEnumerable);
+        private static readonly Type DictionaryType = typeof(IEnumerable<KeyValuePair<string, object>>);
         private static readonly Type ReadOnlySpanType = typeof(ReadOnlySpan<byte>);
         private static readonly Type StreamType = typeof(Stream);
 
@@ -73,11 +75,20 @@ namespace LiveConfiguration.Serializer.Protobuf
 
         private static async Task<ConfigurationEntryMapValue> ToMapValueAsync(this object obj)
         {
-            var properties = obj.GetType().GetProperties();
             var mapValue = new ConfigurationEntryMapValue();
+            if (DictionaryType.IsAssignableFrom(obj.GetType()))
+            {
+                IEnumerable<KeyValuePair<string, object>> enumerable = (IEnumerable<KeyValuePair<string, object>>)obj;
+                foreach(var entry in enumerable)
+                    mapValue.Fields.Add(entry.Key.ToCamelCase(), await entry.Value.ToConfigurationEntryValueAsync(null));
+            }
+            else
+            {
+                var properties = obj.GetType().GetProperties(BindingFlags.Public);
 
-            foreach (PropertyInfo property in properties)
-                mapValue.Fields.Add(property.Name, await property.GetValue(obj).ToConfigurationEntryValueAsync(null));
+                foreach (PropertyInfo property in properties)
+                    mapValue.Fields.Add(property.Name.ToCamelCase(), await property.GetValue(obj).ToConfigurationEntryValueAsync(null));
+            }
 
             return mapValue;
         }
@@ -136,10 +147,13 @@ namespace LiveConfiguration.Serializer.Protobuf
                 return EntryValueType.Date;
             else if (obj is TimeSpan)
                 return EntryValueType.Duration;
-            else if (EnumerableType.IsAssignableFrom(obj.GetType()))
-                return EntryValueType.List;
-            else
+            else if (DictionaryType.IsAssignableFrom(obj.GetType()))
                 return EntryValueType.Map;
+            else
+                return EntryValueType.List;
         }
+    
+        private static string ToCamelCase(this string input)
+            => char.ToLowerInvariant(input[0]) + input[1..];
     }
 }

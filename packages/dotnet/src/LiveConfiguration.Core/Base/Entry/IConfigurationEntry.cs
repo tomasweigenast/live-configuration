@@ -39,7 +39,7 @@ namespace LiveConfiguration.Core
         /// <summary>
         /// Any key-value pair metadata information about this configuration entry
         /// </summary>
-        public IEnumerable<KeyValuePair<string, string>> Metadata { get; set; }
+        public IEnumerable<KeyValuePair<string, object>> Metadata { get; set; }
 
         #endregion
 

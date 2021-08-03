@@ -37,9 +37,9 @@ namespace LiveConfiguration.Core.Impl
 
         public ILiveConfigurationSerializer Serializer => mSerializer;
 
-        public async Task CreateAsync(string path, string name, string description, EntryValueType valueType, object value, IEnumerable<KeyValuePair<string, string>> metadata)
+        public async Task CreateAsync(string path, string name, string description, EntryValueType valueType, object value, IEnumerable<KeyValuePair<string, object>> metadata)
         {
-            await mSource.WriteAsync(new[]
+            int written = await mSource.WriteAsync(new[]
             {
                 KeyValuePair.Create(path, new EntrySource
                 {
@@ -50,7 +50,13 @@ namespace LiveConfiguration.Core.Impl
                     Metadata = metadata
                 })
             });
+
+            if (written != 1)
+                throw new System.Exception("No entry was written. Expect: 1");
         }
+
+        public Task CreateAsync(string groupKey, IConfigurationEntry entry)
+            => CreateAsync($"{groupKey}/{entry.Key}", entry.Name, entry.Description, entry.ValueType, entry.RawValue, entry.Metadata);
 
         public async Task UpdateAsync(string path, object value)
         {
@@ -65,7 +71,7 @@ namespace LiveConfiguration.Core.Impl
 
         public async Task<IEnumerable<IConfigurationGroup>> GetAllAsync()
         {
-            if (mOptions.CacheTtl != TimeSpan.Zero && mCacheExpiration > DateTimeOffset.UtcNow)
+            if (!mCache.IsEmpty && mOptions.CacheTtl != TimeSpan.Zero && mCacheExpiration > DateTimeOffset.UtcNow)
                 return mCache.Values;
 
             IEnumerable<EntryMetadata> entries = await mSource.ReadAsync("*/*");
