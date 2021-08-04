@@ -232,8 +232,10 @@ class LiveConfigurationClient {
       await _setLastFetchDate();
 
       // If it is the first time the configuration syncs, complete the Completer
-      if(!_hasFirstSynced) {
+      try {
         _firstSyncCompleter.complete();
+      } catch(_) {}
+      if(!_hasFirstSynced) {
         _hasFirstSynced = true;
         await _store.save('has_first_synced', true);
       }
