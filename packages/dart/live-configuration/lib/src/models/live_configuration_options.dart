@@ -16,6 +16,9 @@ class LiveConfigurationOptions {
   /// Defaults to 6 hours.
   final Duration cacheTtl;
 
+  /// Any header to attach to the request
+  final Map<String, dynamic>? headers;
+
   /// A custom function used to interpret the response of the remote server while fetching.
   /// It defaults to return the [Response.bodyBytes] property.
   final ResponseInterpreterCallback? responseInterpreter;
@@ -26,5 +29,5 @@ class LiveConfigurationOptions {
   /// [connectionEndpoint] The endpoint where to connect in order to download configuration settings
   /// [cacheTtl] The time to live of the cache before fetching from server again
   /// [responseInterpreter] A custom function used to interpret the response of the remote server while fetching. It defaults to return the [Response.bodyBytes] property.
-  LiveConfigurationOptions({required this.connectionEndpoint, this.cacheTtl = const Duration(hours: 6), this.responseInterpreter, this.connectionTimeout = const Duration(seconds: 10)});
+  LiveConfigurationOptions({required this.connectionEndpoint, this.cacheTtl = const Duration(hours: 6), this.responseInterpreter, this.connectionTimeout = const Duration(seconds: 10), this.headers});
 }

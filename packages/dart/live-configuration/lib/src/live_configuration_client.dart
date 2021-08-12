@@ -212,7 +212,7 @@ class LiveConfigurationClient {
     // Make request
     try {
       var response = await http
-          .get(Uri.parse(_options.connectionEndpoint))
+          .get(Uri.parse(_options.connectionEndpoint), headers: _options.headers?.map((key, value) => MapEntry(key, value.toString())))
           .timeout(const Duration(seconds: 10));
 
       // Parse response

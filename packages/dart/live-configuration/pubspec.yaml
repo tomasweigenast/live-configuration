@@ -1,6 +1,6 @@
 name: live_configuration
 description: A live configuration client that allows you to sync configuration entries from a remote server.
-version: 1.0.18
+version: 1.0.20
 homepage: https://github.com/TomasWeg/live-configuration
 
 environment:

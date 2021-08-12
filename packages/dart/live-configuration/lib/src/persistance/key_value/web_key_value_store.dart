@@ -18,7 +18,7 @@ class WebKeyValueStore extends BaseKeyValueStore {
   Future load() async {
     var value = _storage[_kWebKeyValueStoreStorageName];
     if(value != null) {
-      var jsonMap = json.decode(value);
+      var jsonMap = (json.decode(value) as Map).cast<String, Object>();
       _cache.addAll(jsonMap);
     }
   }
