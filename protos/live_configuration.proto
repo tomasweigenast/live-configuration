@@ -1,13 +1,14 @@
-// This .proto file contains the models to map server settings.
+// This .proto file contains all the models used as data transfer objects, a.k.a DTOs
 
 syntax = "proto3";
 package liveconfiguration.protobuf;
+
 option csharp_namespace = "LiveConfiguration.Core.Protobuf";
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/duration.proto";
 
-message ConfigurationEntries {
+message ConfigurationCollection {
     repeated ConfigurationEntry entries = 1;
 }
 
