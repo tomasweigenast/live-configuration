@@ -1,6 +1,5 @@
 import 'package:live_configuration/live_configuration.dart';
 import 'package:live_configuration/src/models/configuration/config_entry.dart';
-import 'package:live_configuration/src/models/configuration/config_type.dart';
 import 'package:live_configuration/src/type_decoder/json_type_decoder.dart';
 import 'package:live_configuration/src/type_decoder/type_decoder_options.dart';
 import 'package:test/expect.dart';
@@ -13,7 +12,8 @@ void main() {
       'LiveConfigurationClient provides methods to connect to a LiveConfigurationNetwork and retrieve configuration settings',
       () {
     setUp(() {
-      client = LiveConfigurationClient.dev(
+      client = LiveConfigurationClient.mock(
+        optionsSavePath: 'test',
         defaultEntries: [
           ConfigEntry.forBool('facebookLoginEnabled', false),
           ConfigEntry.forInt('maxLoginAttemps', 5),
@@ -30,10 +30,12 @@ void main() {
           ConfigEntry.forDateTime('expiration', DateTime(2060, 25, 15)),
           ConfigEntry.forDuration('timeToLive', Duration(days: 7)),
         ],
-        typeDecoder:
-            TypeDecoderOptions(decoder: JsonTypeDecoder(), typeRegistry: {
-          AppCity: () => AppCity(),
-        }),
+        typeDecoder: TypeDecoderOptions(
+          decoder: JsonTypeDecoder(), 
+          typeRegistry: {
+            AppCity: () => AppCity(),
+          }
+        ),
       );
     });
 
@@ -115,8 +117,8 @@ void main() {
         "LiveConfigurationClient.getAs<T>(key) returns the value of an entry as a the generic type, throwing an exception if the configuration entry isn't of type Map or it can't be converted to the generic type.",
         () {
       var mainCity = client!.getAs<AppCity>('mainCity');
-      expect(mainCity.city, 'Toronto');
-      expect(mainCity.enabled, true);
+      expect(mainCity?.city, 'Toronto');
+      expect(mainCity?.enabled, true);
     });
 
     test(

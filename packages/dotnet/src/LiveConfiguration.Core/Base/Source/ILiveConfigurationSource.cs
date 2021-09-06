@@ -12,7 +12,8 @@ namespace LiveConfiguration.Core.Source
         /// Writes one or more entries to the provider
         /// </summary>
         /// <param name="entries">The entries to write. The key of the value pair represents the path to write the entry to, and the value the entry to write.</param>
-        Task WriteAsync(IEnumerable<KeyValuePair<string, EntrySource>> entries);
+        /// <returns>The number of entries written.</returns>
+        Task<int> WriteAsync(IEnumerable<KeyValuePair<string, EntrySource>> entries);
 
         /// <summary>
         /// Reads entries from the specified path.

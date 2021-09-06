@@ -1,16 +1,23 @@
 name: live_configuration
 description: A live configuration client that allows you to sync configuration entries from a remote server.
-version: 1.0.2
+version: 1.0.20
 homepage: https://github.com/TomasWeg/live-configuration
 
 environment:
   sdk: '>=2.12.0 <3.0.0'
+  flutter: ">=1.17.0"
 
 dependencies:
   protobuf: ^2.0.0
   http: ^0.13.3
   fixnum: ^1.0.0
+  path: any
+  path_provider: ^2.0.2
+  flutter:
+    sdk: flutter
 
 dev_dependencies:
   pedantic: ^1.10.0
   test: ^1.17.9
+
+flutter:

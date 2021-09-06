@@ -13,8 +13,7 @@ class JsonConfigurationDeserializer extends BaseConfigurationDeserializer {
 
     for (var entry in jsonMap) {
       ConfigurationEntryValueType valueType = entry['valueType'];
-      list.add(ConfigEntry(
-          entry['key'], valueType, _getRealValue(entry['value'], valueType)));
+      list.add(ConfigEntry(entry['key'], valueType, _getRealValue(entry['value'], valueType)));
     }
 
     return list;
@@ -30,6 +29,13 @@ class JsonConfigurationDeserializer extends BaseConfigurationDeserializer {
 
       case ConfigurationEntryValueType.ConfigurationEntryValueType_DURATION:
         return Duration(milliseconds: (value as double).floor());
+
+      case ConfigurationEntryValueType.ConfigurationEntryValueType_BYTES:
+        try {
+          return base64.decode(value as String);
+        } catch(_) {
+          throw Exception("Can't decode BYTES value type because json deserializer expects its value to be encoded as a base64 string.");
+        }
 
       default:
         return value;

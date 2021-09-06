@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
@@ -10,12 +10,12 @@
     <RepositoryUrl>https://github.com/TomasWeg/live-configuration</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <Version>2.1.1</Version>
+    <Version>2.1.5</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>D:\Tomas\Git\live-configuration\packages\dotnet\src\LiveConfiguration.Firestore\LiveConfiguration.Provider.Firestore.xml</DocumentationFile>
-    <OutputPath>D:\Tomas\Git\live-configuration\packages\dotnet\release\LiveConfiguration.Provider.Firestore</OutputPath>
+    <DocumentationFile>E:\Git\live-configuration\packages\dotnet\release\LiveConfiguration.Provider.Firestore\LiveConfiguration.Provider.Firestore.xml</DocumentationFile>
+    <OutputPath>E:\Git\live-configuration\packages\dotnet\release\LiveConfiguration.Provider.Firestore</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,14 +25,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LiveConfiguration.Core\LiveConfiguration.Core.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="..\..\..\..\LICENSE">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LiveConfiguration.Core\LiveConfiguration.Core.csproj" />
   </ItemGroup>
 
 </Project>

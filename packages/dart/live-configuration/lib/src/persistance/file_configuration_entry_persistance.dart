@@ -1,13 +1,13 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:live_configuration/src/encoding/protobuf_encoding.dart';
 import 'package:live_configuration/src/models/configuration/config_entry.dart';
 import 'package:live_configuration/src/persistance/base_configuration_entry_persistance.dart';
 
 /// Persists all the configuration entries to a file
-class FileConfigurationEntryPersistance
-    extends BaseConfigurationEntryPersistance {
-  late File file;
+class FileConfigurationEntryPersistance extends BaseConfigurationEntryPersistance {
+  late final File file;
 
   FileConfigurationEntryPersistance(String path) {
     file = File(path);
@@ -24,8 +24,9 @@ class FileConfigurationEntryPersistance
       var buffer = await file.readAsBytes();
 
       // Decode using protobuf
-      return ProtobufEncoding.decode(buffer);
-    } catch (_) {
+      return ProtobufEncoding.decode(buffer, sanitize: false);
+    } catch (err) {
+      debugPrint('Error reading from file: $err');
       return null;
     }
   }

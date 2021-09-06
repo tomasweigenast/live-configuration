@@ -1,18 +1,22 @@
 import 'dart:convert';
 import 'dart:io';
 
-class KeyValueStore {
+import 'package:path/path.dart' as io_path;
+import 'package:live_configuration/src/persistance/key_value/base_key_value_store.dart';
+import 'package:path_provider/path_provider.dart';
+
+class FileKeyValueStore extends BaseKeyValueStore {
   static const String _fileName = 'live_config.dat';
 
   final Map<String, Object> _cache = {};
 
-  late File _file;
+  late final File _file;
 
-  KeyValueStore() {
-    _file = File(_fileName);
-  }
-
+  @override
   Future load() async {
+    var dir = await getApplicationDocumentsDirectory();
+    _file = File(io_path.join(dir.path, _fileName));
+
     if (!await _file.exists()) {
       await _file.create(recursive: true);
     }
@@ -24,11 +28,13 @@ class KeyValueStore {
     } catch (_) {}
   }
 
+  @override
   Future save(String key, Object value) async {
     _cache[key] = value;
     await _saveToFile();
   }
 
+  @override
   T? getValue<T>(String key) {
     return _cache[key] as T?;
   }
@@ -42,3 +48,5 @@ class KeyValueStore {
     await _file.writeAsString(jsonEncoded);
   }
 }
+
+BaseKeyValueStore getKeyValueStore() => FileKeyValueStore();

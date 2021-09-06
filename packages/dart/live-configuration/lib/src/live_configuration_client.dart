@@ -1,18 +1,18 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 import 'package:live_configuration/src/deserializer/base_configuration_deserializer.dart';
 import 'package:live_configuration/src/deserializer/json_configuration_deserializer.dart';
-import 'package:live_configuration/src/deserializer/protobuf_configuration_deserializer.dart';
 import 'package:live_configuration/src/models/configuration/config_entry.dart';
 import 'package:live_configuration/src/models/live_configuration_options.dart';
 import 'package:live_configuration/src/models/protos/live_configuration.pb.dart';
 import 'package:live_configuration/src/persistance/base_configuration_entry_persistance.dart';
 import 'package:live_configuration/src/persistance/file_configuration_entry_persistance.dart';
-import 'package:live_configuration/src/persistance/key_value_store.dart';
-
-import 'package:http/http.dart' as http;
+import 'package:live_configuration/src/persistance/key_value/base_key_value_store.dart';
 import 'package:live_configuration/src/type_decoder/type_decoder_options.dart';
+
 
 class LiveConfigurationClient {
   final LiveConfigurationOptions _options;
@@ -20,38 +20,54 @@ class LiveConfigurationClient {
   final BaseConfigurationDeserializer _deserializer;
   final TypeDecoderOptions? _typeDecoder;
   final Map<String, ConfigEntry> _entries;
-  final KeyValueStore _store;
   final Map<Type, dynamic> _cacheTypes = {};
+  final BaseKeyValueStore _store;
+  final Completer _firstSyncCompleter = Completer();
 
   DateTime? _lastFetchDate;
+  bool _hasFirstSynced = false;
 
+  /// A completer that can be used to await until the first synchronization is made.
+  Completer get firstSyncCompleter => _firstSyncCompleter;
+
+  /// Creates a new [LiveConfigurationClient]
+  /// [options] The options to configure the client.
+  /// [persistance] The persistance implementation to use in order to save entries locally.
+  /// [deserializer] The configuration deserializer to use.
+  /// [typeDecoder] The type decoder to use. It is not required unless non primitive types are needed.
+  /// [optionsSavePath] The path where to save [LiveConfigurationClient] settings 
   LiveConfigurationClient(
       {required LiveConfigurationOptions options,
       required BaseConfigurationEntryPersistance persistance,
       required BaseConfigurationDeserializer deserializer,
-      TypeDecoderOptions? typeDecoder})
+      Iterable<ConfigEntry>? defaultEntries,
+      TypeDecoderOptions? typeDecoder,
+      String? optionsSavePath})
       : _options = options,
         _persistance = persistance,
         _deserializer = deserializer,
         _typeDecoder = typeDecoder,
-        _entries = {},
-        _store = KeyValueStore();
+        _entries = defaultEntries != null ? {for (var e in defaultEntries) e.key: e} : {},
+        _store = BaseKeyValueStore.instance;
 
-  LiveConfigurationClient.dev(
+  /// Creates a mockable instance of the [LiveConfigurationClient]
+  /// [defaultEntries] the entries to use.
+  /// [options] the options to use.
+  /// [persistance] the persistance to use.
+  /// [deserializer] the deserializer to use.
+  LiveConfigurationClient.mock(
       {Iterable<ConfigEntry>? defaultEntries,
       LiveConfigurationOptions? options,
       BaseConfigurationEntryPersistance? persistance,
       BaseConfigurationDeserializer? deserializer,
+      String? optionsSavePath,
       TypeDecoderOptions? typeDecoder})
       : _options = options ?? LiveConfigurationOptions(connectionEndpoint: ''),
-        _persistance = persistance ??
-            FileConfigurationEntryPersistance('configuration-entries.json'),
+        _persistance = persistance ?? FileConfigurationEntryPersistance('configuration-entries.json'),
         _deserializer = deserializer ?? JsonConfigurationDeserializer(),
         _typeDecoder = typeDecoder,
-        _store = KeyValueStore(),
-        _entries = defaultEntries != null
-            ? {for (var e in defaultEntries) e.key: e}
-            : {};
+        _store = BaseKeyValueStore.instance,
+        _entries = defaultEntries != null ? {for (var e in defaultEntries) e.key: e} : {};
 
   /// Initializes the live configuration client
   Future init() async {
@@ -60,41 +76,56 @@ class LiveConfigurationClient {
 
     // Get last fetch date
     _lastFetchDate = _getLastFetchDate();
+    _hasFirstSynced = _store.getValue<bool>('has_first_synced') ?? false;
+    
+    var entries = await _persistance.getAll();
+    if(entries != null) {
+      _entries.addAll({ for (var entry in entries) entry.key: entry });
+    }
+
+    // If first synced happened, complete inmmediatelly
+    if(_hasFirstSynced) {
+      _firstSyncCompleter.complete();
+    }
 
     unawaited(_fetch());
   }
 
-  String getString(String key) {
+  String? getString(String key) {
     return _getEntry(
         key, ConfigurationEntryValueType.ConfigurationEntryValueType_STRING);
   }
 
-  bool getBool(String key) {
+  bool? getBool(String key) {
     return _getEntry(
         key, ConfigurationEntryValueType.ConfigurationEntryValueType_BOOL);
   }
 
-  int getInt(String key) {
+  int? getInt(String key) {
     return _getEntry(
         key, ConfigurationEntryValueType.ConfigurationEntryValueType_INT);
   }
 
-  double getDouble(String key) {
+  double? getDouble(String key) {
     return _getEntry(
         key, ConfigurationEntryValueType.ConfigurationEntryValueType_DOUBLE);
   }
 
-  Duration getDuration(String key) {
+  Duration? getDuration(String key) {
     return _getEntry(
         key, ConfigurationEntryValueType.ConfigurationEntryValueType_DURATION);
   }
 
-  DateTime getDateTime(String key) {
+  DateTime? getDateTime(String key) {
     return _getEntry(
         key, ConfigurationEntryValueType.ConfigurationEntryValueType_TIMESTAMP);
   }
 
-  List<T> getList<T>(String key) {
+  Uint8List? getUint8List(String key) {
+    return _getEntry(key, ConfigurationEntryValueType.ConfigurationEntryValueType_BYTES);
+  }
+
+  List<T>? getList<T>(String key) {
     var list = _getEntry(
         key, ConfigurationEntryValueType.ConfigurationEntryValueType_LIST);
     try {
@@ -119,13 +150,13 @@ class LiveConfigurationClient {
     }
   }
 
-  Map<TKey, TValue> getMap<TKey, TValue>(String key) {
+  Map<TKey, TValue>? getMap<TKey, TValue>(String key) {
     var map = _getEntry(
         key, ConfigurationEntryValueType.ConfigurationEntryValueType_JSON);
     return (map as Map).cast<TKey, TValue>();
   }
 
-  T getAs<T>(String key) {
+  T? getAs<T>(String key) {
     if (_typeDecoder == null) {
       throw ArgumentError(
           'Could not convert to type if type decoder is not specified.');
@@ -134,6 +165,10 @@ class LiveConfigurationClient {
     T? instance = _cacheTypes[T];
     if (instance == null) {
       var map = getMap<String, dynamic>(key);
+      if(map == null) {
+        return null;
+      }
+
       instance = _decode<T>(map);
 
       _cacheTypes[T] = instance;
@@ -170,16 +205,14 @@ class LiveConfigurationClient {
   /// Fetches entries from remote server if current ones are out dated
   Future _fetch() async {
     // Ignore because values are up to date
-    if (_entries.isNotEmpty ||
-        (_lastFetchDate != null &&
-            _lastFetchDate!.add(_options.cacheTtl).isAfter(DateTime.now()))) {
+    if (_entries.isNotEmpty && (_lastFetchDate != null && _lastFetchDate!.add(_options.cacheTtl).isAfter(DateTime.now()))) {
       return;
     }
 
     // Make request
     try {
       var response = await http
-          .get(Uri.parse(_options.connectionEndpoint))
+          .get(Uri.parse(_options.connectionEndpoint), headers: _options.headers?.map((key, value) => MapEntry(key, value.toString())))
           .timeout(const Duration(seconds: 10));
 
       // Parse response
@@ -197,7 +230,19 @@ class LiveConfigurationClient {
       await _persistance.saveAll(entries);
 
       await _setLastFetchDate();
+
+      // If it is the first time the configuration syncs, complete the Completer
+      try {
+        _firstSyncCompleter.complete();
+      } catch(_) {}
+      if(!_hasFirstSynced) {
+        _hasFirstSynced = true;
+        await _store.save('has_first_synced', true);
+      }
     } catch (ex) {
+      try {
+        _firstSyncCompleter.completeError(ex);
+      } catch(_){}
       if (ex is TimeoutException) {
         print(
             '[LIVE-CONFIGURATION] Could not fetch entries from remote server. Timeout exception.');
@@ -212,8 +257,7 @@ class LiveConfigurationClient {
     var lastFetchTimestamp = _store.getValue<int>('last_fetch');
     if (lastFetchTimestamp != null) {
       try {
-        _lastFetchDate =
-            DateTime.fromMillisecondsSinceEpoch(lastFetchTimestamp);
+        _lastFetchDate = DateTime.fromMillisecondsSinceEpoch(lastFetchTimestamp);
         return _lastFetchDate;
       } catch (_) {}
     }

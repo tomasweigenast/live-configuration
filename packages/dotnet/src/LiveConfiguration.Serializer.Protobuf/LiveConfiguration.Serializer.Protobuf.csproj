@@ -8,11 +8,12 @@
     <PackageProjectUrl>https://github.com/TomasWeg/live-configuration</PackageProjectUrl>
     <RepositoryUrl>https://github.com/TomasWeg/live-configuration</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <Version>1.0.2</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>D:\Tomas\Git\live-configuration\packages\dotnet\src\LiveConfiguration.Serializer.Protobuf\LiveConfiguration.Serializer.Protobuf.xml</DocumentationFile>
-    <OutputPath>D:\Tomas\Git\live-configuration\packages\dotnet\release\LiveConfiguration.Serializer.Protobuf</OutputPath>
+    <DocumentationFile>E:\Git\live-configuration\packages\dotnet\release\LiveConfiguration.Serializer.Protobuf\LiveConfiguration.Serializer.Protobuf.xml</DocumentationFile>
+    <OutputPath>E:\Git\live-configuration\packages\dotnet\release\LiveConfiguration.Serializer.Protobuf</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,7 +1,5 @@
-﻿using Google.Api.Gax;
-using Google.Cloud.Firestore;
+﻿using Google.Cloud.Firestore;
 using Google.Protobuf;
-using Grpc.Core;
 using LiveConfiguration.Core.Entry;
 using LiveConfiguration.Core.Exception;
 using LiveConfiguration.Core.Source;
@@ -38,7 +36,7 @@ namespace LiveConfiguration.Firestore
 
             mFirestore = new FirestoreDbBuilder
             {
-                ChannelCredentials = mOptions.EmulatorDetection == EmulatorDetection.EmulatorOnly ? ChannelCredentials.Insecure : mOptions.Credentials,
+                ChannelCredentials = mOptions.Credentials,
                 ProjectId = mOptions.ProjectId,
                 EmulatorDetection = mOptions.EmulatorDetection,
             }.Build();
@@ -96,26 +94,32 @@ namespace LiveConfiguration.Firestore
         }
 
         /// <inheritdoc/>
-        public async Task WriteAsync(IEnumerable<KeyValuePair<string, EntrySource>> entries)
+        public async Task<int> WriteAsync(IEnumerable<KeyValuePair<string, EntrySource>> entries)
         {
-            await mFirestore.RunTransactionAsync(async (transaction) =>
+            var batch = mFirestore.StartBatch();
+
+            foreach (var entry in entries)
             {
-                foreach(var entry in entries)
-                {
-                    if (entry.Key.Split('/').Length % 2 != 0)
-                        throw new ArgumentException("Path must contain even parts.");
+                if (entry.Key.Split('/').Length % 2 != 0)
+                    throw new ArgumentException("Path must contain even parts.");
 
-                    string[] pathParts = entry.Key.Split('/');
+                string[] pathParts = entry.Key.Split('/');
 
-                    object serializedEntry = SerializeEntry(entry.Value);
-                    DocumentReference documentReference = mFirestore.Collection(mOptions.CollectionName).Document(pathParts[0]).Collection("entries").Document(pathParts[1]);
+                object serializedEntry = await SerializeEntry(entry.Value, pathParts[1]);
+                DocumentReference documentReference = mFirestore.Collection(mOptions.CollectionName).Document(pathParts[0]).Collection("entries").Document(pathParts[1]);
 
-                    if (serializedEntry is Stream stream)
-                        transaction.Update(documentReference, "buffer", Blob.FromByteString(await ByteString.FromStreamAsync(stream)));
-                    else if (serializedEntry is Dictionary<string, object> fields)
-                        transaction.Update(documentReference, fields);
-                }
-            });
+                if (serializedEntry is Stream stream)
+                    batch.Set(documentReference, new Dictionary<string, object>
+                        {
+                            { "buffer", Blob.FromByteString(await ByteString.FromStreamAsync(stream)) }
+
+                        }, SetOptions.MergeFields("buffer"));
+                else if (serializedEntry is Dictionary<string, object> fields)
+                    batch.Set(documentReference, fields, SetOptions.MergeAll);
+            }
+
+            var result = await batch.CommitAsync();
+            return result.Count;
         }
 
         #endregion
@@ -150,10 +154,10 @@ namespace LiveConfiguration.Firestore
 
             return new GroupSource()
             {
-                Key = fields.GetValueOrDefault<string>(nameof(EntryMetadata.Key)),
-                Name = fields.GetValueOrDefault<string>(nameof(EntryMetadata.Name)),
-                Description = fields.GetValueOrDefault<string>(nameof(EntryMetadata.Description)),
-                Metadata = fields.GetValueOrDefault<IEnumerable<KeyValuePair<string, string>>>(nameof(EntryMetadata.Metadata)),
+                Key = fields.GetValueOrDefault<string>("key"),
+                Name = fields.GetValueOrDefault<string>("name"),
+                Description = fields.GetValueOrDefault<string>("description"),
+                Metadata = fields.GetValueOrDefault<Dictionary<string, object>>("metadata"),
                 Entries = entries
             };
         }
@@ -179,25 +183,25 @@ namespace LiveConfiguration.Firestore
 
             return new EntrySource
             {
-                Key = fields.GetValueOrDefault<string>(nameof(EntryMetadata.Key)),
-                Name = fields.GetValueOrDefault<string>(nameof(EntryMetadata.Name)),
-                Description = fields.GetValueOrDefault<string>(nameof(EntryMetadata.Description)),
-                Metadata = fields.GetValueOrDefault<IEnumerable<KeyValuePair<string, string>>>(nameof(EntryMetadata.Metadata)),
-                ValueType = fields.GetValueOrDefault<EntryValueType>(nameof(EntrySource.ValueType)),
-                RawValue = fields.GetValueOrDefault<object>(nameof(EntrySource.RawValue)),
+                Key = fields.GetValueOrDefault<string>("key"),
+                Name = fields.GetValueOrDefault<string>("name"),
+                Description = fields.GetValueOrDefault<string>("description"),
+                Metadata = fields.GetValueOrDefault<Dictionary<string, object>>("metadata"),
+                ValueType = (EntryValueType)fields.GetValueOrDefault<long>("valueType"),
+                RawValue = fields.GetValueOrDefault<object>("value"),
             };
         }
 
-        private async Task<object> SerializeEntry(EntrySource entry)
+        private async Task<object> SerializeEntry(EntrySource entry, string key)
         {
             Dictionary<string, object> fields = new()
             {
-                { nameof(EntryMetadata.Key), entry.Key },
-                { nameof(EntryMetadata.Name), entry.Name },
-                { nameof(EntryMetadata.Description), entry.Description },
-                { nameof(EntryMetadata.Metadata), entry.Metadata },
-                { nameof(EntrySource.ValueType), entry.ValueType },
-                { nameof(EntrySource.RawValue), entry.RawValue },
+                { "key", key },
+                { "name", entry.Name },
+                { "description", entry.Description },
+                { "metadata", entry.Metadata },
+                { "valueType", (long)entry.ValueType },
+                { "value", entry.RawValue },
             };
 
             // Serialize

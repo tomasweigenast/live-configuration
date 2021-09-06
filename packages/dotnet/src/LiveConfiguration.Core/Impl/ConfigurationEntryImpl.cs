@@ -14,7 +14,7 @@ namespace LiveConfiguration.Core.Impl
 
         public string Key { get; set; }
 
-        public IEnumerable<KeyValuePair<string, string>> Metadata { get; set; }
+        public IEnumerable<KeyValuePair<string, object>> Metadata { get; set; }
 
         public object RawValue { get; set; }
 

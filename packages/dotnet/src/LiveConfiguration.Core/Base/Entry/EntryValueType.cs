@@ -13,5 +13,6 @@
         Map = 5,
         Date = 6,
         Duration = 7,
+        Bytes = 8
     }
 }
