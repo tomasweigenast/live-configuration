@@ -31,7 +31,7 @@ func (repository FirestoreRepository) Insert(context context.Context, model data
 		return "", err
 	}
 
-	document, _, err := repository.Db.Collection(getCollectionName(model)).Add(repository.Ctx, data.GetFields(model))
+	document, _, err := repository.Db.Collection(getCollectionName(model)).Add(repository.Ctx, model)
 	if err != nil {
 		return "", err
 	}
@@ -44,7 +44,7 @@ func (repository FirestoreRepository) Update(context context.Context, model data
 		return err
 	}
 
-	_, err := repository.Db.Collection(getCollectionName(model)).Doc(model.GetId()).Set(repository.Ctx, data.GetFields(model), firestore.MergeAll)
+	_, err := repository.Db.Collection(getCollectionName(model)).Doc(model.GetId()).Set(repository.Ctx, model, firestore.MergeAll)
 	return err
 }
 

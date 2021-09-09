@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/tomasweg/live-configuration/data"
 	"gorm.io/gorm"
 )
 
@@ -33,7 +32,7 @@ func (repository SqlRepository) Insert(context context.Context, model interface{
 		return "", err
 	}
 
-	return data.GetId(model), nil
+	return "Model.Id", nil
 }
 
 func (repository SqlRepository) Update(context context.Context, model interface{}) error {

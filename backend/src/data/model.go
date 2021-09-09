@@ -1,12 +1,20 @@
 package data
 
 import (
+	"encoding/json"
+	"fmt"
 	"reflect"
 	"strings"
+
+	"github.com/tomasweg/live-configuration/utils"
 )
 
 type Namer interface {
 	CollectionName() string
+}
+
+type Converter interface {
+	ToMap() map[string]interface{}
 }
 
 type IModel interface {
@@ -18,14 +26,18 @@ type ModelField struct {
 	StructField     reflect.StructField
 	StructFieldName string
 	TagName         string
+	IsPrimaryKey    bool
+	Tags            []string
+	OmitEmpty       bool
 }
 
-type ModelFieldCollection struct {
+type ModelDescription struct {
 	Fields     []ModelField
 	FieldCount int
+	Name       string
 }
 
-func (collection ModelFieldCollection) GetByTag(tag string) *ModelField {
+func (collection ModelDescription) GetFieldByTag(tag string) *ModelField {
 	for _, v := range collection.Fields {
 		if v.TagName == tag {
 			return &v
@@ -35,7 +47,7 @@ func (collection ModelFieldCollection) GetByTag(tag string) *ModelField {
 	return nil
 }
 
-func (collection ModelFieldCollection) GetByFieldName(fieldName string) *ModelField {
+func (collection ModelDescription) GetFieldByName(fieldName string) *ModelField {
 	for _, v := range collection.Fields {
 		if v.StructFieldName == fieldName {
 			return &v
@@ -45,109 +57,242 @@ func (collection ModelFieldCollection) GetByFieldName(fieldName string) *ModelFi
 	return nil
 }
 
-func GetFields(model interface{}) map[string]interface{} {
-	v := reflect.ValueOf(model)
-	t := v.Type()
+func ModelToMap(model interface{}) map[string]interface{} {
+	val := reflect.ValueOf(model)
+	fieldDescription := getModelDescriptionByValue(val)
+
+	fmt.Printf("Mapping model: %v with ModelDescription: %v (field count: %v)\n", val.Type().Name(), fieldDescription.Name, fieldDescription.FieldCount)
+
+	if val.Kind() == reflect.Ptr {
+		fmt.Println("Unpacking pointer...")
+		val = val.Elem()
+	}
+
+	resultMap := make(map[string]interface{}, fieldDescription.FieldCount)
+	for _, v := range fieldDescription.Fields {
+		if !v.StructField.IsExported() {
+			continue
+		}
+
+		field := val.FieldByName(v.StructFieldName)
+
+		var fieldValue interface{}
+		switch field.Kind() {
+		case reflect.Struct:
+			fieldValue = ModelToMap(field.Interface())
+
+		case reflect.Array, reflect.Slice:
+			arrayLength := field.Len()
+			arrayValue := make([]interface{}, arrayLength)
+			for i := 0; i < arrayLength; i++ {
+				value := field.Index(i)
+				if value.Type().Kind() == reflect.Struct {
+					arrayValue[i] = ModelToMap(value.Interface())
+				} else {
+					arrayValue[i] = value.Interface()
+				}
+			}
+
+			fieldValue = arrayValue
+
+		default:
+			fieldValue = field.Interface()
+		}
+
+		resultMap[v.TagName] = fieldValue
+	}
+
+	return resultMap
+}
+
+func ModelFromMap(model interface{}, data map[string]interface{}) {
+	val := reflect.ValueOf(model).Elem()
+	fieldCollection := getModelDescriptionByValue(val)
+
+	for _, v := range fieldCollection.Fields {
+		data := data[v.TagName]
+		modelField := val.FieldByName(v.StructField.Name)
+
+		if !modelField.IsValid() || !modelField.CanSet() {
+			return
+		}
+
+		setModelValue(&modelField, data)
+	}
+}
+
+var fieldsByTag = make(map[reflect.Type]*ModelDescription)
+
+func buildModelDescriptionFor(t reflect.Type) *ModelDescription {
+	fmt.Printf("Creating ModelDescription for type %v\n", t.Name())
+
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+
 	if t.Kind() != reflect.Struct {
-		return nil
+		panic("bad type: " + t.Kind().String())
 	}
 
 	numField := t.NumField()
-	fields := make(map[string]interface{}, numField)
-	v = v.Elem()
+	foundFields := make([]ModelField, numField)
 
 	for i := 0; i < numField; i++ {
-		f := t.Field(i)
-		if !f.IsExported() {
+		field := t.Field(i)
+		if !field.IsExported() {
 			continue
 		}
 
-		fieldValue := v.Field(i)
-		key, omit, _ := readTag(f)
-
-		if omit && fieldValue.String() == "" {
+		tags := strings.Split(field.Tag.Get("repository"), ",")
+		if utils.ArrayContains(tags, "-") {
 			continue
 		}
 
-		fields[key] = fieldValue.Interface()
-	}
+		tagName := tags[0]
+		tags = utils.ArrayRemove(tags, 0)
 
-	return fields
-}
+		// if field.Type.Kind() == reflect.Struct {
+		// 	buildModelDescriptionFor(field.Type)
+		// }
 
-func GetId(model interface{}) string {
-	v := reflect.ValueOf(model)
-	t := v.Type()
-
-	v = v.Elem()
-
-	for i := 0; i < t.NumField(); i++ {
-		f := t.Field(i)
-		if !f.IsExported() {
-			continue
-		}
-
-		_, _, primaryKey := readTag(f)
-		if strings.ToLower(f.Name) == "id" || primaryKey {
-			return v.String()
+		foundFields[i] = ModelField{
+			StructField:     field,
+			StructFieldName: field.Name,
+			TagName:         tagName,
+			IsPrimaryKey:    utils.ArrayContains(tags, "primaryKey"),
+			OmitEmpty:       utils.ArrayContains(tags, "omitempty"),
+			Tags:            tags,
 		}
 	}
 
-	panic("model does not have a primary key defined.")
+	description := &ModelDescription{
+		Fields:     foundFields,
+		FieldCount: len(foundFields),
+		Name:       t.Name(),
+	}
+
+	fieldsByTag[t] = description
+	return description
 }
 
-func readTag(f reflect.StructField) (string, bool, bool) {
-	val, ok := f.Tag.Lookup("repository")
+func getModelDescriptionByValue(value reflect.Value) ModelDescription {
+	fields, ok := fieldsByTag[value.Type()]
 	if !ok {
-		return f.Name, false, false
+		fmt.Printf("DescriptionModel for type %v not found. Creating...\n", value.Type().Name())
+		fields = buildModelDescriptionFor(value.Type())
 	}
 
-	opts := strings.Split(val, ",")
-	omit := false
-	primaryKey := false
-
-	if contains(opts, "omitempty") {
-		omit = true
-	}
-
-	if contains(opts, "primaryKey") {
-		primaryKey = true
-	}
-
-	return opts[0], omit, primaryKey
+	return *fields
 }
 
-func contains(array []string, value string) bool {
-	for _, v := range array {
-		if v == value {
-			return true
-		}
+func getModelDescriptionByType(t reflect.Type) ModelDescription {
+	fields, ok := fieldsByTag[t]
+	if !ok {
+		fields = buildModelDescriptionFor(t)
 	}
 
-	return false
+	return *fields
 }
 
-func getValue(v reflect.Value) interface{} {
-	switch v.Kind() {
-	case reflect.Bool:
-		return v.Bool()
-
+func setModelValue(modelField *reflect.Value, dataField interface{}) {
+	fmt.Printf("Setting field value to [%v]. Field kind: %v - type: %v - data field type: %v\n", dataField, modelField.Kind(), modelField.Type(), reflect.TypeOf(dataField).Kind())
+	switch modelField.Kind() {
 	case reflect.String:
-		return v.String()
+		modelField.SetString(dataField.(string))
 
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return v.Int()
+	case reflect.Bool:
+		modelField.SetBool(dataField.(bool))
 
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return v.Uint()
+	case reflect.Int, reflect.Int16, reflect.Int32, reflect.Int64:
+		modelField.SetInt(reflect.ValueOf(dataField).Int())
+
+	case reflect.Uint, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		modelField.SetUint(reflect.ValueOf(dataField).Uint())
 
 	case reflect.Float32, reflect.Float64:
-		return v.Float()
+		modelField.SetFloat(reflect.ValueOf(dataField).Float())
 
 	case reflect.Complex64, reflect.Complex128:
-		return v.Complex()
+		modelField.SetComplex(reflect.ValueOf(dataField).Complex())
+
+	case reflect.Slice, reflect.Array:
+		dataArray := reflect.ValueOf(dataField)
+		arrayValue := reflect.MakeSlice(modelField.Type(), 0, dataArray.Cap())
+		for i := 0; i < dataArray.Len(); i++ {
+			element := dataArray.Index(i)
+			arrayElementType := modelField.Type().Elem()
+			arrayValue = reflect.Append(arrayValue, convertBack(arrayElementType, element))
+		}
+
+		modelField.Set(reflect.ValueOf(modelField.Type()))
+
+	case reflect.Map:
+		dataMap := dataField.(map[interface{}]interface{})
+		mapValue := reflect.MakeMap(reflect.TypeOf(dataField))
+		if dataField == nil {
+			modelField.Set(reflect.MakeMapWithSize(modelField.Type(), len(dataMap)))
+		} else {
+			for k, v := range dataMap {
+				mapValue.SetMapIndex(reflect.ValueOf(k), reflect.ValueOf(v))
+			}
+		}
+
+		modelField.Set(mapValue)
+
+	case reflect.Struct:
+		modelField.Set(reflect.ValueOf(ModelToMap(dataField.(map[interface{}]interface{}))))
 
 	default:
-		return v.Interface()
+		panic(fmt.Sprintf("cant convert %v", modelField.Kind()))
 	}
+}
+
+func convertBack(baseType reflect.Type, element reflect.Value) reflect.Value {
+	baseTypeFieldCollection := getModelDescriptionByType(baseType)
+	switch element.Kind() {
+	case reflect.Map:
+		// elementMap := element.Interface().(map[string]interface{})
+		newMap := make(map[string]interface{})
+		for _, key := range element.MapKeys() {
+			value := element.MapIndex(key)
+			field := baseTypeFieldCollection.GetFieldByTag(key.String())
+			fmt.Printf("value: %v - type: %v - kind: %v\n", value, value.Type(), value.Kind())
+
+			switch field.StructField.Type.Kind() {
+			case reflect.Struct, reflect.Map:
+				fmt.Printf("Converting back a [%v] - kind [%v] with value [%v] of type [%v]\n", field.StructField.Type.Name(), field.StructField.Type.Kind(), value.Interface(), value.Type())
+				newMap[field.StructFieldName] = convertBack(field.StructField.Type, reflect.ValueOf(value.Interface()))
+
+			default:
+				newMap[field.StructFieldName] = value.Interface()
+			}
+		}
+
+		// j, _ := json.Marshal(newMap)
+		return reflect.ValueOf(unmarshalType(newMap, baseType))
+		// return reflect.ValueOf()
+
+	default:
+		return element
+	}
+}
+
+func unmarshalType(data map[string]interface{}, modelType reflect.Type) interface{} {
+	modelInstance := reflect.New(modelType).Elem()
+	for k, v := range data {
+		field := modelInstance.FieldByName(k)
+		if field.CanSet() {
+			value := reflect.ValueOf(v)
+			j, _ := json.Marshal(value.Interface())
+			fmt.Printf("Value to set: %v [kind: %v] - Field type: %v - Field name: %v\n", string(j), reflect.TypeOf(value.Interface()), field.Type(), k)
+			value = reflect.ValueOf(value.Interface()).Convert(field.Type())
+			field.Set(value)
+			// if field.Kind() != reflect.Struct {
+			// } else {
+			// 	field.Set(value)
+			// }
+		}
+	}
+
+	return modelInstance
 }
