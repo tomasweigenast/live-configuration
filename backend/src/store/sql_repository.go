@@ -28,27 +28,19 @@ func (repository *SqlRepository) Initialize(args ...interface{}) {
 
 	repository.Db = args[0].(*gorm.DB)
 }
-func (repository SqlRepository) Insert(context context.Context, model data.IModel) (string, error) {
-	if err := model.Validate(); err != nil {
-		return "", err
-	}
-
+func (repository SqlRepository) Insert(context context.Context, model interface{}) (string, error) {
 	if err := repository.Db.Create(model).Error; err != nil {
 		return "", err
 	}
 
-	return model.GetId(), nil
+	return data.GetId(model), nil
 }
 
-func (repository SqlRepository) Update(context context.Context, model data.IModel) error {
-	if err := model.Validate(); err != nil {
-		return err
-	}
-
+func (repository SqlRepository) Update(context context.Context, model interface{}) error {
 	return repository.Db.Save(model).Error
 }
 
-func (repository SqlRepository) FindOne(context context.Context, receiver data.IModel, id string) error {
+func (repository SqlRepository) FindOne(context context.Context, receiver interface{}, id string) error {
 	return repository.Db.First(receiver, id).Error
 }
 
@@ -63,6 +55,6 @@ func (repository SqlRepository) FindAll(context context.Context, models interfac
 	return repository.Db.Find(models).Where(sql).Error
 }
 
-func (repository SqlRepository) Delete(context context.Context, model data.IModel) error {
+func (repository SqlRepository) Delete(context context.Context, model interface{}) error {
 	return repository.Db.Delete(model).Error
 }
