@@ -1,6 +1,7 @@
 package main
 
 import (
+	"reflect"
 	"time"
 
 	"encoding/json"
@@ -10,12 +11,27 @@ import (
 )
 
 func main() {
-	// convertTo()
-	convertFrom()
+	converterRegistry := make(map[reflect.Type]data.Converter)
+	converterRegistry[reflect.TypeOf(time.Time{})] = data.Converter{
+		To: func(model interface{}) (output interface{}) {
+			localTime := model.(time.Time)
+			return localTime.Format(time.RFC3339)
+		},
+		From: func(model interface{}) (output interface{}, err error) {
+			stringTime := model.(string)
+			return time.Parse(time.RFC3339, stringTime)
+		},
+		CanDecode: func(modelType reflect.Type) (canConvert bool) {
+			return modelType.Kind() == reflect.String
+		},
+	}
+
+	// convertTo(converterRegistry)
+	convertFrom(converterRegistry)
 
 }
 
-func convertFrom() {
+func convertFrom(converterRegistry data.ConverterRegistry) {
 	remoteMap := map[string]interface{}{
 		"age":       64,
 		"id":        "777",
@@ -35,11 +51,13 @@ func convertFrom() {
 		},
 	}
 
+	fmt.Println(remoteMap)
+
 	resultModel := User{}
-	data.ModelFromMap(&resultModel, remoteMap)
+	data.Decode(remoteMap, &resultModel, converterRegistry)
 }
 
-func convertTo() {
+func convertTo(converterRegistry data.ConverterRegistry) {
 	user := User{
 		Id:   "123",
 		Name: "Tomás",
@@ -76,14 +94,15 @@ func convertTo() {
 		},
 		Points:    []float32{25.21, 333, 325.15424},
 		Addresses: []Address{},
+		BirthDate: time.Now(),
 	}
 
-	resultMap := data.ModelToMap(user)
+	resultMap := data.Encode(user, converterRegistry)
 	jsonResult, _ := json.MarshalIndent(resultMap, "", "    ")
 	fmt.Println("MAP 1")
 	fmt.Println(string(jsonResult))
 
-	resultMap2 := data.ModelToMap(user2)
+	resultMap2 := data.Encode(user2, converterRegistry)
 	jsonResult2, _ := json.MarshalIndent(resultMap2, "", "    ")
 	fmt.Println("MAP 2")
 	fmt.Println(string(jsonResult2))
