@@ -1,11 +1,13 @@
 package test
 
 import (
+	"encoding/json"
 	"errors"
 	"reflect"
 	"testing"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/tomasweg/live-configuration/model"
 )
 
@@ -19,10 +21,15 @@ func TestEncode(t *testing.T) {
 		From: func(model interface{}) (output interface{}, err error) {
 			switch model := model.(type) {
 			case string:
-				return time.Parse(time.RFC3339, model)
+				decoded, err := time.Parse(time.RFC3339, model)
+				if err != nil {
+					return time.Time{}, err
+				}
+
+				return &decoded, nil
 
 			case time.Time:
-				return model, nil
+				return &model, nil
 
 			default:
 				return time.Time{}, errors.New("cant decode time with type " + reflect.TypeOf(model).String())
@@ -35,9 +42,10 @@ func TestEncode(t *testing.T) {
 
 	modelMapper := model.GetModelMapping(converterRegistry)
 
+	userName := "Tomas"
 	user := User{
 		Id:   "123",
-		Name: "Tomás",
+		Name: &userName,
 		Age:  65,
 		Center: Coordinates{
 			Latitude:  25,
@@ -61,9 +69,11 @@ func TestEncode(t *testing.T) {
 		},
 	}
 
+	birthDate := time.Now()
+	userName = "Martín"
 	user2 := User{
 		Id:   "333",
-		Name: "Martin",
+		Name: &userName,
 		Age:  12,
 		Center: Coordinates{
 			Latitude:  22,
@@ -71,7 +81,7 @@ func TestEncode(t *testing.T) {
 		},
 		Points:    []float32{25.21, 333, 325.15424},
 		Addresses: []Address{},
-		BirthDate: time.Now(),
+		BirthDate: &birthDate,
 	}
 
 	resultMap := modelMapper.Encode(user)
@@ -79,6 +89,13 @@ func TestEncode(t *testing.T) {
 
 	t.Logf("FIRST MAP: %v", resultMap)
 	t.Logf("SECOND MAP: %v", resultMap2)
+
+	t.Log("DUMP")
+	j1, _ := json.Marshal(resultMap)
+	j2, _ := json.Marshal(resultMap2)
+
+	t.Log(string(j1))
+	t.Log(string(j2))
 }
 
 func TestDecode(t *testing.T) {
@@ -86,18 +103,24 @@ func TestDecode(t *testing.T) {
 	converterRegistry[reflect.TypeOf(time.Time{})] = model.Converter{
 		To: func(model interface{}) (output interface{}) {
 			localTime := model.(time.Time)
-			return localTime.Format(time.RFC3339)
+			result := localTime.Format(time.RFC3339)
+			return &result
 		},
 		From: func(model interface{}) (output interface{}, err error) {
 			switch model := model.(type) {
 			case string:
-				return time.Parse(time.RFC3339, model)
+				converted, err := time.Parse(time.RFC3339, model)
+				if err != nil {
+					return nil, err
+				}
+
+				return &converted, nil
 
 			case time.Time:
-				return model, nil
+				return &model, nil
 
 			default:
-				return time.Time{}, errors.New("cant decode time with type " + reflect.TypeOf(model).String())
+				return &time.Time{}, errors.New("cant decode time with type " + reflect.TypeOf(model).String())
 			}
 		},
 		CanDecode: func(modelType reflect.Type) (canConvert bool) {
@@ -108,9 +131,9 @@ func TestDecode(t *testing.T) {
 	modelMapper := model.GetModelMapping(converterRegistry)
 
 	remoteMap := map[string]interface{}{
-		"age":       64,
-		"id":        "777",
-		"name":      "Tómas Weigenast",
+		"age": 64,
+		"id":  "777",
+		// "name":      "Tómas Weigenast",
 		"birthDate": time.Now(), //"2021-09-14T12:33:16.594Z",
 		"points": []float64{
 			25, 36, 45, 88,
@@ -137,17 +160,22 @@ func TestDecode(t *testing.T) {
 		t.Errorf("error: %v", err)
 	}
 
-	t.Logf("RESULT STRUCT: %v", resultModel)
+	t.Log("RESULT STRUCT")
+	spew.Dump(resultModel)
+
+	t.Log("JSON RESULT")
+	j, _ := json.MarshalIndent(resultModel, "", "    ")
+	t.Log(string(j))
 }
 
 type User struct {
-	Id        string      `repository:"id"`
-	Name      string      `repository:"name"`
+	Id        string      `repository:"id,primaryKey"`
+	Name      *string     `repository:"name"`
 	Age       int         `repository:"age"`
 	Addresses []Address   `repository:"addresses"`
 	Center    Coordinates `repository:"center"`
 	Points    []float32   `repository:"points"`
-	BirthDate time.Time   `repository:"birthDate"`
+	BirthDate *time.Time  `repository:"birthDate"`
 }
 
 type Address struct {
