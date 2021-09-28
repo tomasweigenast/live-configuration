@@ -41,6 +41,8 @@ const (
 	BETWEEN                   WhereOperator = 8
 	LIKE                      WhereOperator = 9
 	OR                        WhereOperator = 10
+	CONTAINS                  WhereOperator = 11
+	CONTAINS_ANY              WhereOperator = 12
 )
 
 type SortDirection int32
