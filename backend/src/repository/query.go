@@ -1,4 +1,4 @@
-package store
+package repository
 
 import (
 	"errors"
@@ -13,7 +13,7 @@ type Query struct {
 	Filters        []QueryWhere
 	Sorting        []QuerySort
 	SelectedFields []string
-	Page           *Pagination
+	Page           *PageInformation
 }
 
 type QuerySort struct {
@@ -27,12 +27,6 @@ type QueryWhere struct {
 	Value     interface{}
 	Nested    []QueryWhere
 }
-
-type Pagination struct {
-	PageSize  uint64
-	PageToken string
-}
-
 type WhereOperator int32
 
 const (
@@ -111,10 +105,34 @@ func (query Query) Select(fields ...string) Query {
 	return query
 }
 
-func (query Query) Paginate(pageSize uint64, pageToken string) Query {
-	query.Page = &Pagination{
-		PageSize:  pageSize,
-		PageToken: pageToken,
+func (query Query) CursorPaginate(pageSize int32, pageToken string) Query {
+	decodedPageToken, err := DecodePageToken(pageToken)
+
+	// If the page token is invalid, just return the query
+	if err != nil {
+		return query
+	}
+
+	query.Page = &PageInformation{
+		PageSize:         pageSize,
+		CurrentPageToken: *decodedPageToken,
+		PaginationType:   cursor,
+	}
+
+	return query
+}
+
+func (query Query) OffsetPaginate(pageSize int32, currentPage int32) Query {
+	currentPagePtr := new(int64)
+	*currentPagePtr = int64(currentPage)
+
+	query.Page = &PageInformation{
+		PageSize:       pageSize,
+		PaginationType: offset,
+		CurrentPageToken: pageToken{
+			CurrentPage:    currentPagePtr,
+			PaginationType: offset,
+		},
 	}
 
 	return query
@@ -149,7 +167,7 @@ func (query Query) ToSql(model interface{}) (string, interface{}, error) {
 
 	// Create pagination if not found with a default page size of 100
 	if query.Page == nil {
-		query.Page = &Pagination{
+		query.Page = &PageInformation{
 			PageSize: 100,
 		}
 	}
@@ -158,18 +176,18 @@ func (query Query) ToSql(model interface{}) (string, interface{}, error) {
 	sqlQuery = sqlQuery.Limit(uint64(query.Page.PageSize))
 
 	// Apply cursor pagination if any
-	if len(query.Page.PageToken) != 0 {
-		token, err := DecodeCursor(query.Page.PageToken)
-		if err != nil {
-			return "", nil, err
-		}
+	// if len(query.Page.PageToken) != 0 {
+	// 	token, err := DecodeCursor(query.Page.PageToken)
+	// 	if err != nil {
+	// 		return "", nil, err
+	// 	}
 
-		token.Encode()
+	// 	token.Encode()
 
-		// for key, value := range token {
+	// 	// for key, value := range token {
 
-		// }
-	}
+	// 	// }
+	// }
 
 	sql, args, err := sqlQuery.ToSql()
 	if err != nil {
