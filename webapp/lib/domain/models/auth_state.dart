@@ -1,0 +1,3 @@
+enum AuthState {
+  authenticated, notAuthenticated
+}
