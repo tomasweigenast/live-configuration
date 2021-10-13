@@ -6,11 +6,10 @@
 
 import 'package:auto_route/auto_route.dart' as _i5;
 import 'package:flutter/material.dart' as _i6;
-import 'package:liveconfiguration_webapp/views/auth/login_view.dart' as _i4;
-import 'package:liveconfiguration_webapp/views/home/home_view.dart' as _i3;
-import 'package:liveconfiguration_webapp/views/wrappers/dashboard_wrapper_view.dart'
-    as _i1;
-import 'package:liveconfiguration_webapp/views/wrappers/login_wrapper_view.dart'
+import 'package:webapp/ui/views/auth/login_view.dart' as _i4;
+import 'package:webapp/ui/views/home/home_view.dart' as _i3;
+import 'package:webapp/ui/views/wrappers/dashboard_wrapper_view.dart' as _i1;
+import 'package:webapp/ui/views/wrappers/unauthenticated_wrapper_view.dart'
     as _i2;
 
 class AppRouter extends _i5.RootStackRouter {
@@ -23,22 +22,17 @@ class AppRouter extends _i5.RootStackRouter {
       return _i5.AdaptivePage<dynamic>(
           routeData: routeData, child: const _i1.DashboardWrapperView());
     },
-    NotAuthenticatedRouter.name: (routeData) {
+    UnauthenticatedRouter.name: (routeData) {
       return _i5.AdaptivePage<dynamic>(
-          routeData: routeData, child: const _i2.LoginWrapperView());
+          routeData: routeData, child: const _i2.UnauthenticatedWrapperView());
     },
     HomeRoute.name: (routeData) {
       return _i5.AdaptivePage<dynamic>(
           routeData: routeData, child: const _i3.HomeView());
     },
     LoginRoute.name: (routeData) {
-      final pathParams = routeData.pathParams;
-      final args = routeData.argsAs<LoginRouteArgs>(
-          orElse: () =>
-              LoginRouteArgs(accountId: pathParams.getString('accountId')));
       return _i5.AdaptivePage<dynamic>(
-          routeData: routeData,
-          child: _i4.LoginView(accountId: args.accountId, key: args.key));
+          routeData: routeData, child: const _i4.LoginView());
     }
   };
 
@@ -49,7 +43,7 @@ class AppRouter extends _i5.RootStackRouter {
           _i5.RouteConfig('*#redirect',
               path: '*', redirectTo: 'home', fullMatch: true)
         ]),
-        _i5.RouteConfig(NotAuthenticatedRouter.name, path: '/auth', children: [
+        _i5.RouteConfig(UnauthenticatedRouter.name, path: '/auth', children: [
           _i5.RouteConfig('#redirect',
               path: '', redirectTo: 'login', fullMatch: true),
           _i5.RouteConfig(LoginRoute.name, path: 'login'),
@@ -67,12 +61,12 @@ class AuthenticatedRouter extends _i5.PageRouteInfo<void> {
   static const String name = 'AuthenticatedRouter';
 }
 
-/// generated route for [_i2.LoginWrapperView]
-class NotAuthenticatedRouter extends _i5.PageRouteInfo<void> {
-  const NotAuthenticatedRouter({List<_i5.PageRouteInfo>? children})
+/// generated route for [_i2.UnauthenticatedWrapperView]
+class UnauthenticatedRouter extends _i5.PageRouteInfo<void> {
+  const UnauthenticatedRouter({List<_i5.PageRouteInfo>? children})
       : super(name, path: '/auth', initialChildren: children);
 
-  static const String name = 'NotAuthenticatedRouter';
+  static const String name = 'UnauthenticatedRouter';
 }
 
 /// generated route for [_i3.HomeView]
@@ -83,19 +77,8 @@ class HomeRoute extends _i5.PageRouteInfo<void> {
 }
 
 /// generated route for [_i4.LoginView]
-class LoginRoute extends _i5.PageRouteInfo<LoginRouteArgs> {
-  LoginRoute({required String accountId, _i6.Key? key})
-      : super(name,
-            path: 'login',
-            args: LoginRouteArgs(accountId: accountId, key: key));
+class LoginRoute extends _i5.PageRouteInfo<void> {
+  const LoginRoute() : super(name, path: 'login');
 
   static const String name = 'LoginRoute';
-}
-
-class LoginRouteArgs {
-  const LoginRouteArgs({required this.accountId, this.key});
-
-  final String accountId;
-
-  final _i6.Key? key;
 }

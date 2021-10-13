@@ -1,6 +1,6 @@
 {
-    "name": "liveconfiguration_webapp",
-    "short_name": "liveconfiguration_webapp",
+    "name": "webapp",
+    "short_name": "webapp",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

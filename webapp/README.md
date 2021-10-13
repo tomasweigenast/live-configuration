@@ -1,4 +1,4 @@
-# liveconfiguration_webapp
+# webapp
 
 A new Flutter project.
 

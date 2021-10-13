@@ -28,20 +28,24 @@ packages:
       name: async
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.8.1"
+    version: "2.8.2"
   auto_route:
     dependency: "direct main"
     description:
-      name: auto_route
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: auto_route
+      ref: master
+      resolved-ref: b7a71e48dc0a24260d60338e11a267231742e2f3
+      url: "https://github.com/TomasWeg/auto_route_library.git"
+    source: git
     version: "2.4.2"
   auto_route_generator:
     dependency: "direct dev"
     description:
-      name: auto_route_generator
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: auto_route_generator
+      ref: master
+      resolved-ref: b7a71e48dc0a24260d60338e11a267231742e2f3
+      url: "https://github.com/TomasWeg/auto_route_library.git"
+    source: git
     version: "2.4.1"
   boolean_selector:
     dependency: transitive
@@ -133,7 +137,7 @@ packages:
       name: cli_util
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.3.4"
+    version: "0.3.5"
   clock:
     dependency: transitive
     description:
@@ -209,6 +213,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_form_builder:
+    dependency: "direct main"
+    description:
+      name: flutter_form_builder
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "7.0.0-beta.0"
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -216,6 +227,11 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.4"
+  flutter_localizations:
+    dependency: transitive
+    description: flutter
+    source: sdk
+    version: "0.0.0"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -226,6 +242,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  form_builder_validators:
+    dependency: "direct main"
+    description:
+      name: form_builder_validators
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "7.0.0"
   frontend_server_client:
     dependency: transitive
     description:
@@ -261,6 +284,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.0.0"
+  intl:
+    dependency: transitive
+    description:
+      name: intl
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.17.0"
   io:
     dependency: transitive
     description:
@@ -302,7 +332,7 @@ packages:
       name: matcher
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.12.10"
+    version: "0.12.11"
   meta:
     dependency: transitive
     description:
@@ -426,7 +456,7 @@ packages:
       name: test_api
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.4.2"
+    version: "0.4.3"
   timing:
     dependency: transitive
     description:

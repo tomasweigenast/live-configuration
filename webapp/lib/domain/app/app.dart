@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
-import 'package:liveconfiguration_webapp/domain/app/services/account_service/base_account_service.dart';
-import 'package:liveconfiguration_webapp/domain/app/services/account_service/mock_account_service.dart';
-import 'package:liveconfiguration_webapp/domain/app/services/account_service/prod_account_service.dart';
+import 'package:webapp/domain/app/services/account_service/base_account_service.dart';
+import 'package:webapp/domain/app/services/account_service/mock_account_service.dart';
+import 'package:webapp/domain/app/services/account_service/prod_account_service.dart';
 
 /// Main entry for LiveConfiguration app
 class Application {

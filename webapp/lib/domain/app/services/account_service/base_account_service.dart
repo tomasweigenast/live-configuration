@@ -1,4 +1,4 @@
-import 'package:liveconfiguration_webapp/domain/models/auth_state.dart';
+import 'package:webapp/domain/models/auth_state.dart';
 
 abstract class BaseAccountService {
 
