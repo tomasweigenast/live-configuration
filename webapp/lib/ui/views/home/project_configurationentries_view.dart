@@ -16,8 +16,9 @@ class _ProjectConfigurationEntriesViewState extends State<ProjectConfigurationEn
     return PaginatedTable<ConfigurationEntry>(
       pageSizes: const [10, 20, 50],
       defaultPageSize: 10,
+      initialPageToken: "initial",
       resolvePage: (pageToken, pageSize) async {
-        int initialIndex = pageToken != null ? int.parse(pageToken) : 2;
+        int initialIndex = pageToken != null ? int.tryParse(pageToken) ?? 1 : 1;
 
         await Future.delayed(const Duration(seconds: 1));
         return PageIndicator.items(

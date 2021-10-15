@@ -7,9 +7,11 @@ class PaginatedTable<T extends Object> extends StatefulWidget {
   final List<TableColumn<T>> columns;
   final List<int>? pageSizes;
   final int? defaultPageSize;
+  final String initialPageToken;
   final Future<PageIndicator<T>> Function(String? pageToken, int pageSize) resolvePage;
 
-  const PaginatedTable({required this.columns, required this.resolvePage, this.pageSizes, this.defaultPageSize, Key? key }) : super(key: key);
+  const PaginatedTable({required this.columns, required this.resolvePage, String? initialPageToken, this.pageSizes, this.defaultPageSize, Key? key }) 
+    : initialPageToken = initialPageToken ?? "", super(key: key);
 
   @override
   _PaginatedTableState<T> createState() => _PaginatedTableState<T>();
@@ -21,10 +23,10 @@ class _PaginatedTableState<T extends Object> extends State<PaginatedTable<T>> {
 
   late int _pageSize;
   late List<int> _pageSizes;
+  late _Page<T> _currentPage;
   bool _isLoading = false;
   int _lastIndex = 1;
   Object? _error;
-  _Page<T> _currentPage = _Page<T>.initial();
 
   @override
   void initState() {
@@ -40,8 +42,9 @@ class _PaginatedTableState<T extends Object> extends State<PaginatedTable<T>> {
 
     _pageSizes = widget.pageSizes ?? [20, 50, 70];
     _pageSize = widget.defaultPageSize ?? 20;
+    _currentPage = _Page.initial(currentPageToken: widget.initialPageToken);
 
-    _getPage(pageType: _PageType.next);
+    _getPage(pageType: _PageType.current);
   }
 
   @override
@@ -165,6 +168,10 @@ class _PaginatedTableState<T extends Object> extends State<PaginatedTable<T>> {
       return const Center(child: CircularProgressIndicator());
     }
 
+    if(_error != null) {
+      return Center(child: Text("An error has ocurred.\n$_error"));
+    }
+
     return ListView.builder(
       itemCount: _currentPage.currentItems.length,
       itemBuilder: (context, index) {
@@ -207,21 +214,25 @@ class _PaginatedTableState<T extends Object> extends State<PaginatedTable<T>> {
     });
 
     String? fetchToken;
+    int newPageIndex;
     switch(pageType) {
       case _PageType.previous:
         fetchToken = _currentPage.previousPageToken;
+        newPageIndex = _lastIndex--;
         break;
 
       case _PageType.current:
         fetchToken = _currentPage.currentPageToken;
+        newPageIndex = _lastIndex;
         break;
 
       case _PageType.next:
         fetchToken = _currentPage.nextPageToken;
+        newPageIndex = _lastIndex++;
         break;
     }
 
-    String? previousPageToken = _currentPage.currentPageToken;
+    String? previousPageToken = _currentPage.isInitial ? null : _currentPage.currentPageToken;
     _Page<T>? newPage;
 
     try {
@@ -231,7 +242,7 @@ class _PaginatedTableState<T extends Object> extends State<PaginatedTable<T>> {
 
       // If not found, resolve new page
       if(newPage == null) {
-        PageIndicator<T> result = await widget.resolvePage(_currentPage.nextPageToken, _pageSize);
+        PageIndicator<T> result = await widget.resolvePage(fetchToken, _pageSize);
 
         if(result.error != null) {
           throw result.error!;
@@ -239,12 +250,14 @@ class _PaginatedTableState<T extends Object> extends State<PaginatedTable<T>> {
 
         // Create new page
         newPage = _Page<T>(
-          currentPageToken: _currentPage.nextPageToken, 
+          currentPageToken: fetchToken, 
           nextPageToken: result.nextPageToken, 
           previousPageToken: previousPageToken, 
           currentItems: result.items, 
-          index: _lastIndex++
+          index: newPageIndex
         );
+
+        debugPrint(newPage.debugPrint());
       }
     } catch(err) {
       if(mounted) {
@@ -271,7 +284,7 @@ class _PaginatedTableState<T extends Object> extends State<PaginatedTable<T>> {
     
     if(clearCache) {
       _pageCache.clear();
-      _currentPage = _Page.initial();
+      _currentPage = _Page.initial(currentPageToken: widget.initialPageToken);
       pageType = _PageType.next;
     }
 
@@ -283,20 +296,6 @@ enum _PageType {
   previous, current, next
 }
 
-class _Page<T> {
-  final String? currentPageToken, nextPageToken, previousPageToken;
-  final List<T> currentItems;
-  final int index;
-
-  bool get hasNextPage => nextPageToken != null;
-  bool get hasPreviousPage => previousPageToken != null;
-
-  _Page({required this.currentPageToken, required this.nextPageToken, required this.previousPageToken, required this.currentItems, required this.index});
-
-  factory _Page.initial() {
-    return _Page(currentPageToken: null, previousPageToken: null, nextPageToken: null, currentItems: const [], index: 1);
-  }
-}
 
 class PageIndicator<T> {
   final List<T> items;
