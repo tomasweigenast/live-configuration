@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:paged_datatable/paged_datatable.dart';
 import 'package:webapp/domain/models/configuration_entry.dart';
-import 'package:webapp/ui/controls/paginated_table/paginated_table.dart';
-import 'package:webapp/ui/controls/paginated_table/table_column.dart';
 
 class ProjectConfigurationEntriesView extends StatefulWidget {
   const ProjectConfigurationEntriesView({ Key? key }) : super(key: key);
@@ -13,11 +12,11 @@ class ProjectConfigurationEntriesView extends StatefulWidget {
 class _ProjectConfigurationEntriesViewState extends State<ProjectConfigurationEntriesView> {
   @override
   Widget build(BuildContext context) {
-    return PaginatedTable<ConfigurationEntry>(
+    return PagedDataTable<ConfigurationEntry>(
       pageSizes: const [10, 20, 50],
       defaultPageSize: 10,
       initialPageToken: "initial",
-      resolvePage: (pageToken, pageSize) async {
+      resolvePage: (pageToken, pageSize, filters) async {
         int initialIndex = pageToken != null ? int.tryParse(pageToken) ?? 1 : 1;
 
         await Future.delayed(const Duration(seconds: 1));
@@ -60,15 +59,19 @@ class _ProjectConfigurationEntriesViewState extends State<ProjectConfigurationEn
           title: "Actions",
           rowFormatter: (context, item) => Row(
             children: [
-              IconButton(
-                icon: const Icon(Icons.edit),
-                splashRadius: 20,
-                onPressed: () {},
+              Flexible(
+                child: IconButton(
+                  icon: const Icon(Icons.edit),
+                  splashRadius: 20,
+                  onPressed: () {},
+                ),
               ),
-              IconButton(
-                icon: const Icon(Icons.delete),
-                splashRadius: 20,
-                onPressed: () {},
+              Flexible(
+                child: IconButton(
+                  icon: const Icon(Icons.delete),
+                  splashRadius: 20,
+                  onPressed: () {},
+                ),
               )
             ],
           )
