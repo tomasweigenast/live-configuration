@@ -1,0 +1,33 @@
+// This .proto file contains all the models used as data transfer objects, a.k.a DTOs
+
+syntax = "proto3";
+package liveconfiguration.protobuf;
+
+option csharp_namespace = "LiveConfiguration.Core.Protobuf";
+
+import "google/protobuf/timestamp.proto";
+
+message Organization {
+    string uid = 1;
+    string name = 2;
+    string account_uid = 3;
+    google.protobuf.Timestamp created_at = 4;
+    google.protobuf.Timestamp last_modified = 5;
+}
+
+message Account {
+    string uid = 1;
+    string first_name = 2;
+    string last_name = 3;
+    string email = 4;
+    string phone_number = 5;
+    google.protobuf.Timestamp registration_date = 6;
+    google.protobuf.Timestamp last_modified = 7;
+}
+
+message Session {
+    string uid = 1;
+    string account_uid = 2;
+    google.protobuf.Timestamp generated_at = 3;
+    google.protobuf.Timestamp modified_at = 4;
+}
