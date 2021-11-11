@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:paged_datatable/paged_datatable.dart';
-import 'package:webapp/domain/models/configuration_entry.dart';
+import 'package:webapp_api/webapp_models.dart';
 
 class ProjectConfigurationEntriesView extends StatefulWidget {
   const ProjectConfigurationEntriesView({ Key? key }) : super(key: key);

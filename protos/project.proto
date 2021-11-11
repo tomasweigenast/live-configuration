@@ -3,9 +3,10 @@
 syntax = "proto3";
 package liveconfiguration.protobuf;
 
-option csharp_namespace = "LiveConfiguration.Core.Protobuf";
+option csharp_namespace = "LiveConfiguration.Protobuf";
 
 import "google/protobuf/timestamp.proto";
+import "common.proto";
 
 message Project {
     string uid = 1;
@@ -13,15 +14,21 @@ message Project {
     string organization_uid = 3;
     google.protobuf.Timestamp created_at = 4;
     google.protobuf.Timestamp modified_at = 5;
+    bool is_favorite = 6;
 }
 
 message ProjectSettings {
     bool enabled = 1;
 }
 
-message ProjectAccess {
-
-}
-
 message ProjectUsage {
+    Period period = 1;
+    int64 total_requests = 2;
+    int32 requests_per_second = 3;
+    Operations operations = 4;
+
+    message Operations {
+        int32 update_operations = 1;
+        int32 read_operations = 2;
+    }
 }

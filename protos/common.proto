@@ -1,0 +1,14 @@
+// This .proto file contains all the models used as data transfer objects, a.k.a DTOs
+
+syntax = "proto3";
+package liveconfiguration.protobuf;
+
+option csharp_namespace = "LiveConfiguration.Protobuf";
+
+import "google/protobuf/timestamp.proto";
+
+/// Represents a period of time.
+message Period {
+    google.protobuf.Timestamp start_time = 1;
+    google.protobuf.Timestamp end_time = 2;
+}

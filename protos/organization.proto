@@ -1,0 +1,56 @@
+// This .proto file contains all the models used as data transfer objects, a.k.a DTOs
+
+syntax = "proto3";
+package liveconfiguration.protobuf;
+
+option csharp_namespace = "LiveConfiguration.Protobuf";
+
+import "google/protobuf/timestamp.proto";
+
+message Organization {
+    string uid = 1;
+    string name = 2;
+    string account_uid = 3;
+    google.protobuf.Timestamp created_at = 4;
+    google.protobuf.Timestamp last_modified = 5;
+}
+
+message OrganizationMember {
+    string organization_uid = 1;
+    string account_uid = 2;
+    google.protobuf.Timestamp added_time = 3;
+    OrganizationMemberAccessPolicy policy = 4;
+
+    message OrganizationMemberAccessPolicy {
+        OrganizationPolicy policy = 1;
+        oneof metadata {
+            OrganizationPolicyProject project = 2;
+        }
+    }
+}
+
+// All the access policies an organization's member can have. They are decendant, 
+// being 1 the top level autorization policy: Owner.  
+enum OrganizationPolicy {
+    ORGANIZATION_MEMBER_POLICY_UNDEFINED = 0;
+
+    // Allows any action to be done on an organization. Delete it, manage account's access,
+    // and all the others levels.
+    ORGANIZATION_MEMBER_POLICY_OWNER = 1;
+
+    // Allows an user to manage projects (delete, edit and create), and access to all the others
+    // low level policies.
+    ORGANIZATION_MEMBER_POLICY_ADMINISTRATOR = 2;
+
+    // Allows an user to edit a project configuration entries.
+    ORGANIZATION_MEMBER_POLICY_EDITOR = 3;
+
+    // Allows an user to supervise all organization's projects or selected ones.
+    ORGANIZATION_MEMBER_POLICY_SUPERVISOR = 4;
+}
+
+// Contains a list of all the projects an user has access to interact with its current
+// authorization policy.
+message OrganizationPolicyProject {
+    repeated string project_ids = 1;
+}

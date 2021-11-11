@@ -3,11 +3,10 @@
 syntax = "proto3";
 package liveconfiguration.protobuf;
 
-option csharp_namespace = "LiveConfiguration.Core.Protobuf";
+option csharp_namespace = "LiveConfiguration.Protobuf";
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/duration.proto";
-import "google/protobuf/wrappers.proto";
 
 // Represents a group of configuration entries.
 message ConfigurationGroup {
@@ -18,7 +17,7 @@ message ConfigurationGroup {
     string name = 2;
 
     // A small and optional description.
-    google.protobuf.StringValue description = 3;
+    optional string description = 3;
 
     // The date and time when it was created.
     google.protobuf.Timestamp created_at = 4;
@@ -53,7 +52,7 @@ message ConfigurationGroupVersion {
 message ConfigurationEntry {
     string key = 1;
     string name = 2;
-    google.protobuf.StringValue description = 3;
+    optional string description = 3;
     google.protobuf.Timestamp created_at = 4;
     google.protobuf.Timestamp modified_at = 5;
     ConfigurationEntryValue value = 6;

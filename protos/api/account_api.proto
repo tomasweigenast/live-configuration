@@ -1,0 +1,13 @@
+// This .proto file contains all the models used as data transfer objects, a.k.a DTOs
+
+syntax = "proto3";
+package liveconfiguration.protobuf.api;
+
+option csharp_namespace = "LiveConfiguration.Protobuf.Api";
+
+import "identity.proto";
+
+message RegisterRequest {
+    Account account = 1;
+    string password = 2;
+}

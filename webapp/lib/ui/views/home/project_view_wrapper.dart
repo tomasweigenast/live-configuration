@@ -3,11 +3,11 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:webapp/domain/app/services/projects_service/mock_project_service.dart';
-import 'package:webapp/domain/models/project.dart';
 import 'package:webapp/domain/navigation/app_router.gr.dart';
 import 'package:webapp/helpers/constants.dart';
 import 'package:webapp/ui/controls/loader.dart';
 import 'package:webapp/ui/providers/project_provider.dart';
+import 'package:webapp_api/webapp_models.dart';
 
 class ProjectViewWrapper extends StatefulWidget {
 
